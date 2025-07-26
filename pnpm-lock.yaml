@@ -8,12 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@p5-wrapper/next':
-        specifier: ^2.0.0
-        version: 2.0.0(@p5-wrapper/react@4.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(next@15.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@p5-wrapper/react':
-        specifier: ^4.4.2
-        version: 4.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 5.0.0-rc.3
+        version: 5.0.0-rc.3(p5@2.0.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@types/p5':
         specifier: ^1.7.6
         version: 1.7.6
@@ -357,19 +354,12 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@p5-wrapper/next@2.0.0':
-    resolution: {integrity: sha512-qZ4lzbEqvs8VdtRHgWLPDiH5RsniwLNTYleWo1ETG5wyVEF2Zpvp0inmwz4YAXkfQO05DO25Zkl7V5yqUVDddQ==}
+  '@p5-wrapper/react@5.0.0-rc.3':
+    resolution: {integrity: sha512-blasE+9YICXxfBk2KOZT2ZxF7wyb2ZFcTCUWlyGkWsxkg0yOB2i/tx+sdS1fs34FS9jHR4lyHnj2VEXiN0PuXQ==}
     peerDependencies:
-      '@p5-wrapper/react': '>= 4.0.0'
-      next: '>= 15.0.0'
+      p5: '>= 1.11.3'
       react: '>= 19.0.0'
       react-dom: '>= 19.0.0'
-
-  '@p5-wrapper/react@4.4.2':
-    resolution: {integrity: sha512-jRUy0OAP54gYl84mhJPDoPc7DutQ1Gi2dq2AnFpswQwye+Rb0EVTc7JeAwcgYCs4+ZyDsKeN9GqpYE3RR3jMZQ==}
-    peerDependencies:
-      react: '>= 18.2.0'
-      react-dom: '>= 18.2.0'
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -1547,9 +1537,6 @@ packages:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
 
-  p5@1.11.9:
-    resolution: {integrity: sha512-sx0UdE3/0DO+yx11fWGSpGgm/oJV/hgZeJUvcvZvsNKI3G7kVTILUfjngAxiw4wEd1F7XDpv37YNYA9gOieqNQ==}
-
   p5@2.0.3:
     resolution: {integrity: sha512-MA2fyH4qWWcUGgBnkyz6/B6Uhmr/cF/t+xryeAO6bt/bJoWc8/U6nRVbdP87GMBG5w2H9ej9pUcRqoQEzhtusA==}
 
@@ -1620,6 +1607,11 @@ packages:
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
       react: ^19.1.0
+
+  react-error-boundary@6.0.0:
+    resolution: {integrity: sha512-gdlJjD7NWr0IfkPlaREN2d9uUZUlksrfOx7SX62VRerwXbMY6ftGCIZua1VG1aXFNOimhISsTq+Owp725b9SiA==}
+    peerDependencies:
+      react: '>=16.13.1'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -2141,19 +2133,13 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@p5-wrapper/next@2.0.0(@p5-wrapper/react@4.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(next@15.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@p5-wrapper/react': 4.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      next: 15.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-
-  '@p5-wrapper/react@4.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@p5-wrapper/react@5.0.0-rc.3(p5@2.0.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       microdiff: 1.5.0
-      p5: 1.11.9
+      p5: 2.0.3
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
+      react-error-boundary: 6.0.0(react@19.1.0)
 
   '@rtsao/scc@1.1.0': {}
 
@@ -3484,8 +3470,6 @@ snapshots:
     dependencies:
       p-limit: 3.1.0
 
-  p5@1.11.9: {}
-
   p5@2.0.3:
     dependencies:
       '@davepagurek/bezier-path': 0.0.2
@@ -3558,6 +3542,11 @@ snapshots:
     dependencies:
       react: 19.1.0
       scheduler: 0.26.0
+
+  react-error-boundary@6.0.0(react@19.1.0):
+    dependencies:
+      '@babel/runtime': 7.28.2
+      react: 19.1.0
 
   react-is@16.13.1: {}
 
