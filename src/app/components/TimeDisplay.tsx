@@ -206,11 +206,11 @@ const sketch: Sketch<SketchProps> = (p5) => {
       for (let j = 0; j < rows; j++) {
         if (count % skipRatio === 0) {
           let x = i * spacing + p5.random(-5, 5)
-          let y = j * spacing + p5.random(-5, 5) + 60
+          let y = j * spacing + p5.random(-5, 5)
           
-          // Ensure particles are within screen bounds
+          // Ensure particles are within screen bounds from top to bottom
           x = p5.constrain(x, 10, p5.width - 10)
-          y = p5.constrain(y, 70, p5.height - 10)
+          y = p5.constrain(y, 10, p5.height - 10)
           
           particles.push(new CodeParticle(x, y, p5))
         }
