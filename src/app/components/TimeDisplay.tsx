@@ -40,7 +40,7 @@ class CodeParticle {
     
     this.baseSize = 30
     this.size = this.baseSize
-    this.opacity = 0.1
+    this.opacity = 0.2 // Slightly reduced initial opacity
     this.isInShape = false
     this.hasTarget = false
     
@@ -89,9 +89,9 @@ class CodeParticle {
         this.lastCharChange = currentTime
       }
       
-      // Opacity fluctuation with sine wave
+      // Reduced opacity fluctuation with sine wave for more subtle effect
       let flicker = this.p5.sin(this.p5.frameCount * this.flickerSpeed + this.flickerOffset)
-      this.opacity = this.p5.map(flicker, -1, 1, 0, 0.2) // 0-20% transparency
+      this.opacity = this.p5.map(flicker, -1, 1, 0, 0.6) // 0-15% transparency (reduced from 20%)
       
       // Size breathing effect
       this.size = this.baseSize + this.p5.sin(this.p5.frameCount * 0.05 + this.flickerOffset) * 2
@@ -99,9 +99,9 @@ class CodeParticle {
       // Color transition back to gray
       this.colorTransition = this.p5.lerp(this.colorTransition, 0, 0.05)
     } else {
-      // Number shape particles: more stable
+      // Number shape particles: more stable with reduced opacity
       let flicker = this.p5.sin(this.p5.frameCount * 0.02 + this.flickerOffset)
-      this.opacity = this.p5.map(flicker, -1, 1, 0.15, 0.2) // 15-20% transparency, more stable
+      this.opacity = this.p5.map(flicker, -1, 1, 0.4, 0.6) // 10-15% transparency (reduced from 15-20%)
       this.size = this.p5.lerp(this.size, this.baseSize * 0.85, 0.1)
       
       // Reduced flicker frequency for number particles
@@ -160,8 +160,8 @@ const sketch: Sketch<SketchProps> = (p5) => {
   function initializeParticles() {
     particles = []
     
-    // Balanced spacing for good performance and visual effect
-    let baseSpacing = 50
+    // Slightly smaller spacing for more particles and better visual density
+    let baseSpacing = 35
     let screenArea = p5.width * p5.height
     let spacing = baseSpacing
     
@@ -180,8 +180,9 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Balanced particle limit for good visual effect and performance
-    let maxParticles = Math.min(500, Math.max(200, Math.floor(screenArea / 3000)))
+    // Increased particle limit for better visual density
+    console.log('screenArea', screenArea, Math.floor(screenArea / 250))
+    let maxParticles = Math.min(1200, Math.max(250, Math.floor(screenArea / 250)))
     let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
     
     let count = 0
