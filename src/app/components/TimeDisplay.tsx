@@ -152,28 +152,28 @@ const sketch: Sketch<SketchProps> = (p5) => {
   function initializeParticles() {
     particles = []
     
-    // Smart spacing based on screen size - prioritize performance over particle density
-    let baseSpacing = 40
+    // Aggressive spacing for smooth performance - much larger gaps between particles
+    let baseSpacing = 80
     let screenArea = p5.width * p5.height
     let spacing = baseSpacing
     
-    // Aggressive spacing optimization for better performance
+    // Very aggressive spacing to drastically reduce particle count
     if (screenArea > 2000000) { // Very large screens (>2M pixels)
-      spacing = baseSpacing * 2.0  // Much larger spacing
+      spacing = baseSpacing * 2.5
     } else if (screenArea > 1000000) { // Large screens (>1M pixels) 
-      spacing = baseSpacing * 1.6
+      spacing = baseSpacing * 2.0
     } else if (screenArea > 600000) { // Medium screens
-      spacing = baseSpacing * 1.3
-    } else if (screenArea < 400000) { // Small screens (<400K pixels)
-      spacing = baseSpacing * 1.0
+      spacing = baseSpacing * 1.5
+    } else {
+      spacing = baseSpacing * 1.2
     }
     
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Much more aggressive particle limit for smooth performance
-    let maxParticles = Math.min(600, Math.max(200, Math.floor(screenArea / 2000)))
+    // Extremely aggressive particle limit - prioritize performance over density
+    let maxParticles = Math.min(300, Math.max(150, Math.floor(screenArea / 5000)))
     let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
     
     let count = 0
@@ -230,13 +230,15 @@ const sketch: Sketch<SketchProps> = (p5) => {
     pg.loadPixels()
     let d = pg.pixelDensity()
     
-    // Adaptive step size: smaller screens use smaller steps for accuracy, larger screens use bigger steps for performance
-    let step = 8
+    // Much larger step sizes to dramatically reduce digitPoints
+    let step = 16 // Start with larger base step
     let screenArea = p5.width * p5.height
     if (screenArea > 2000000) {
-      step = 12 // Large screens: bigger steps for performance
+      step = 24 // Very large screens: much bigger steps
+    } else if (screenArea > 1000000) {
+      step = 20 // Large screens: bigger steps
     } else if (screenArea < 400000) {
-      step = 6  // Small screens: smaller steps for accuracy
+      step = 12 // Small screens: moderate steps
     }
     
     for (let x = 0; x < p5.width; x += step) {
@@ -282,14 +284,15 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
   }
 
-  // Evenly distribute particles to target points (exactly like original)
+  // Evenly distribute particles to target points (performance optimized)
   function assignTargetsEvenly() {
-    // Ensure enough particles (exactly like original)
-    let neededParticles = Math.max(digitPoints.length, particles.length)
+    // Performance fix: DON'T create particles equal to digitPoints count!
+    // We work with existing particles only - no new particle creation
     
-    // If not enough particles, create more (exactly like original)
-    while (particles.length < neededParticles) {
-      particles.push(new CodeParticle(p5.random(p5.width), p5.random(p5.height), p5))
+    // Limit digitPoints if too many for performance
+    if (digitPoints.length > particles.length * 3) {
+      digitPoints = digitPoints.slice(0, particles.length * 3)
+      console.log('Limited target points to', digitPoints.length, 'for performance')
     }
     
     // Reset all particle states (exactly like original)
