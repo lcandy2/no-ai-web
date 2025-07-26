@@ -63,66 +63,75 @@ class CodeParticle {
   }
 
   update(forming: boolean) {
-    // Optimized movement to target position with better speed curve
+    // Optimized movement with fewer calculations
     if (forming && this.hasTarget) {
-      let d = this.p5.dist(this.pos.x, this.pos.y, this.target.x, this.target.y)
+      let dx = this.target.x - this.pos.x
+      let dy = this.target.y - this.pos.y
+      let d = Math.sqrt(dx * dx + dy * dy) // Faster than p5.dist
       
-      // If very close, snap directly to target to avoid slow crawl
       if (d < 3) {
         this.pos.x = this.target.x
         this.pos.y = this.target.y
       } else {
-        // Improved speed mapping: higher minimum speed, tighter distance range
-        let speed = this.p5.map(d, 0, 300, 0.06, 0.2)
-        this.pos.x = this.p5.lerp(this.pos.x, this.target.x, speed)
-        this.pos.y = this.p5.lerp(this.pos.y, this.target.y, speed)
+        let speed = d > 300 ? 0.2 : 0.06 + (d / 300) * 0.14 // Simplified mapping
+        this.pos.x += dx * speed
+        this.pos.y += dy * speed
       }
     }
 
-    // Advanced character flicker with timing
+    // Reduce update frequency for background particles
+    let frameCount = this.p5.frameCount
     let currentTime = this.p5.millis()
-    let flickerInterval = 1000 / (this.flickerSpeed * 50)
     
     if (!forming || !this.isInShape) {
-      // Background particles: continuous flicker with low opacity
-      if (currentTime - this.lastCharChange > flickerInterval) {
-        this.char = this.p5.random(this.chars)
-        this.lastCharChange = currentTime
+      // Background particles: less frequent updates
+      if (frameCount % 3 === 0) { // Update every 3rd frame
+        if (currentTime - this.lastCharChange > (1000 / (this.flickerSpeed * 30))) { // Slower flicker
+          this.char = this.p5.random(this.chars)
+          this.lastCharChange = currentTime
+        }
+        
+        // Pre-calculate sin values
+        let flicker = Math.sin(frameCount * this.flickerSpeed + this.flickerOffset)
+        this.opacity = 0.15 + flicker * 0.05 // Optimized: 0.1-0.2 range
+        
+        let sizeFlicker = Math.sin(frameCount * 0.05 + this.flickerOffset)
+        this.size = this.baseSize + sizeFlicker * 2
+        
+        if (this.colorTransition > 0.05) {
+          this.colorTransition *= 0.95 // Faster decay
+        }
       }
-      
-      // Background particles: low opacity fluctuation between 0.1-0.2 (10-20%)
-      let flicker = this.p5.sin(this.p5.frameCount * this.flickerSpeed + this.flickerOffset)
-      this.opacity = this.p5.map(flicker, -1, 1, 0.1, 0.2) // Background: 10-20% opacity
-      
-      // Size breathing effect
-      this.size = this.baseSize + this.p5.sin(this.p5.frameCount * 0.05 + this.flickerOffset) * 2
-      
-      // Color transition back to gray
-      this.colorTransition = this.p5.lerp(this.colorTransition, 0, 0.05)
     } else {
-      // Number shape particles: higher opacity for better visibility
-      let flicker = this.p5.sin(this.p5.frameCount * 0.02 + this.flickerOffset)
-      this.opacity = this.p5.map(flicker, -1, 1, 0.6, 0.8) // Number particles: 60-80% opacity (much higher)
-      this.size = this.p5.lerp(this.size, this.baseSize * 0.85, 0.1)
+      // Number particles: normal update rate but optimized
+      let flicker = Math.sin(frameCount * 0.02 + this.flickerOffset)
+      this.opacity = 0.7 + flicker * 0.1 // Optimized: 0.6-0.8 range
       
-      // Reduced flicker frequency for number particles
-      if (this.p5.random(1) < 0.003) {
+      this.size += (this.baseSize * 0.85 - this.size) * 0.1 // Simplified lerp
+      
+      if (Math.random() < 0.002) { // Slightly less frequent
         this.char = this.p5.random(this.chars)
       }
       
-      // Color transition to orange
-      this.colorTransition = this.p5.lerp(this.colorTransition, 1, 0.08)
+      if (this.colorTransition < 0.95) {
+        this.colorTransition += (1 - this.colorTransition) * 0.08
+      }
     }
     
-    // Calculate current color based on transition (gray to orange)
-    this.currentColor.r = this.p5.lerp(55, 248, this.colorTransition)  // 55 -> 248
-    this.currentColor.g = this.p5.lerp(71, 103, this.colorTransition) // 71 -> 103  
-    this.currentColor.b = this.p5.lerp(89, 41, this.colorTransition)  // 89 -> 41
+    // Optimized color calculation
+    if (this.colorTransition > 0.01) {
+      this.currentColor.r = 55 + (248 - 55) * this.colorTransition
+      this.currentColor.g = 71 + (103 - 71) * this.colorTransition
+      this.currentColor.b = 89 + (41 - 89) * this.colorTransition
+    }
   }
 
   display() {
+    // Skip very transparent particles to save rendering
+    if (this.opacity < 0.05) return
+    
     this.p5.push()
-    this.p5.textFont('GoodfonT-NET-XS03, monospace') // Use custom font with fallback
+    this.p5.textFont('GoodfonT-NET-XS03, monospace')
     this.p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
     this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
     this.p5.textSize(this.size)
@@ -196,9 +205,9 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Increase particle limit for full background coverage like original TimeTest
-    console.log('screenArea', screenArea, Math.floor(screenArea / 200))
-    let maxParticles = Math.min(2000, Math.max(400, Math.floor(screenArea / 200)))  // More particles for background
+    // Performance-balanced particle limit
+    console.log('screenArea', screenArea, Math.floor(screenArea / 250))
+    let maxParticles = Math.min(1500, Math.max(300, Math.floor(screenArea / 250)))  // Reduced for performance
     let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
     
     let count = 0
@@ -438,32 +447,37 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let frameStart = p5.millis()
     p5.background(239, 248, 255)
     
-    // Display vertical line background particles first
-    for (let line of verticalLines) {
-      p5.push()
-      let flicker = p5.sin(p5.frameCount * line.flickerSpeed + line.flickerOffset)
-      let opacity = p5.map(flicker, -1, 1, line.opacity * 0.5, line.opacity)
-      
-      p5.textFont('GoodfonT-NET-XS03, monospace')
-      p5.fill(55, 71, 89, opacity * 255)
-      p5.textAlign(p5.CENTER, p5.CENTER)
-      p5.textSize(line.baseSize)
-      p5.text(line.char, line.x, line.y)
-      p5.pop()
+    // Display vertical lines with reduced frequency
+    if (p5.frameCount % 2 === 0) { // Update every other frame
+      for (let line of verticalLines) {
+        let flicker = Math.sin(p5.frameCount * line.flickerSpeed + line.flickerOffset)
+        let opacity = line.opacity * 0.75 + flicker * line.opacity * 0.25
+        
+        if (opacity > 0.05) { // Skip very transparent ones
+          p5.push()
+          p5.textFont('GoodfonT-NET-XS03, monospace')
+          p5.fill(55, 71, 89, opacity * 255)
+          p5.textAlign(p5.CENTER, p5.CENTER)
+          p5.textSize(line.baseSize)
+          p5.text(line.char, line.x, line.y)
+          p5.pop()
+        }
+      }
     }
     
-    // Display main particles with performance optimization
-    for (let particle of particles) {
-      particle.update(forming)
-      particle.display()
+    // Batch particle updates and rendering
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update(forming)
+      particles[i].display()
     }
     
-    // Performance monitoring
+    // Lightweight performance monitoring
     let frameTime = p5.millis() - frameStart
     frameTimeHistory.push(frameTime)
-    if (frameTimeHistory.length > 60) frameTimeHistory.shift()
+    if (frameTimeHistory.length > 30) frameTimeHistory.shift() // Reduced history
     
-    let avgFrameTime = frameTimeHistory.reduce((a, b) => a + b, 0) / frameTimeHistory.length
+    let avgFrameTime = frameTimeHistory.length > 0 ? 
+      frameTimeHistory.reduce((a, b) => a + b, 0) / frameTimeHistory.length : 0
     
     // Enhanced debug info with performance metrics (controllable)
     if (showDebug) {
