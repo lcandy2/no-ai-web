@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 
 export default function QRCodeReport() {
-  const [isExpanded, setIsExpanded] = useState(false)
   const [qrCodeUrl, setQrCodeUrl] = useState('')
   const [currentUrl, setCurrentUrl] = useState('')
 
@@ -15,7 +14,7 @@ export default function QRCodeReport() {
 
     // 生成二维码
     QRCode.toDataURL(url, {
-      width: 200,
+      width: 140,
       margin: 2,
       color: {
         dark: '#374759',
@@ -37,7 +36,7 @@ export default function QRCodeReport() {
       setCurrentUrl(url)
       
       QRCode.toDataURL(url, {
-        width: 200,
+        width: 140,
         margin: 2,
         color: {
           dark: '#374759',
@@ -64,7 +63,7 @@ export default function QRCodeReport() {
       zIndex: 9999,
       display: 'none', // 默认隐藏
       // 只在桌面端显示
-      '@media (min-width: 768px)': {
+      '@media (minWidth: 768px)': {
         display: 'block'
       }
     }} className="desktop-only">
@@ -106,108 +105,73 @@ export default function QRCodeReport() {
         }
       `}</style>
 
-      {!isExpanded ? (
-        // 收起状态：显示按钮
-        <div
-          className="qr-button"
-          onClick={() => setIsExpanded(true)}
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-            fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif',
-            fontSize: '14px',
-            color: '#374759',
-            border: '1px solid rgba(248, 103, 41, 0.2)',
-            backdropFilter: 'blur(5px)'
-          }}
-        >
-          📱 扫码获取报告
+      {/* 始终展开状态：显示二维码面板 */}
+      <div 
+        className="qr-panel"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          paddingInline: '10px',
+          paddingBlock: '10px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          minWidth: '150px',
+          textAlign: 'center',
+          fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid #eee',
+          // border: '1px solid rgba(248, 103, 41, 0.2)'
+        }}
+      >
+        {/* 标题 */}
+        <div style={{
+          fontSize: '16px',
+          fontWeight: 'bold',
+          color: '#374759',
+          marginBottom: '4px',
+        }}>
+          扫码获取报告
         </div>
-      ) : (
-        // 展开状态：显示二维码面板
-        <div 
-          className="qr-panel"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            padding: '20px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-            minWidth: '240px',
-            textAlign: 'center',
-            fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(248, 103, 41, 0.2)'
-          }}
-        >
-          {/* 关闭按钮 */}
-          <div
-            onClick={() => setIsExpanded(false)}
-            style={{
-              position: 'absolute',
-              top: '8px',
-              right: '12px',
-              cursor: 'pointer',
-              fontSize: '18px',
-              color: '#999',
-              lineHeight: 1
-            }}
-          >
-            ×
-          </div>
 
-          {/* 标题 */}
+        {/* 二维码 */}
+        {qrCodeUrl && (
+          <div style={{ marginBottom: '4px' }}>
+            <img 
+              src={qrCodeUrl} 
+              alt="报告二维码"
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+                // border: '1px solid #eee',
+                // borderRadius: '4px'
+              }}
+            />
+          </div>
+        )}
+
+        {/* 提示文字 */}
+        {/* <div style={{
+          fontSize: '12px',
+          color: '#666',
+          lineHeight: 1.4
+        }}>
+          使用手机扫描二维码
+          <br />
+          在移动端查看此报告
+        </div> */}
+
+        {/* 链接显示（可选，用于调试） */}
+        {process.env.NODE_ENV === 'development' && (
           <div style={{
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: '#374759',
-            marginBottom: '16px'
+            fontSize: '10px',
+            color: '#999',
+            marginTop: '8px',
+            wordBreak: 'break-all',
+            maxWidth: '200px'
           }}>
-            扫码获取报告
+            {currentUrl}
           </div>
-
-          {/* 二维码 */}
-          {qrCodeUrl && (
-            <div style={{ marginBottom: '12px' }}>
-              <img 
-                src={qrCodeUrl} 
-                alt="报告二维码"
-                style={{
-                  maxWidth: '100%',
-                  height: 'auto',
-                  border: '1px solid #eee',
-                  borderRadius: '4px'
-                }}
-              />
-            </div>
-          )}
-
-          {/* 提示文字 */}
-          <div style={{
-            fontSize: '12px',
-            color: '#666',
-            lineHeight: 1.4
-          }}>
-            使用手机扫描二维码
-            <br />
-            在移动端查看此报告
-          </div>
-
-          {/* 链接显示（可选，用于调试） */}
-          {process.env.NODE_ENV === 'development' && (
-            <div style={{
-              fontSize: '10px',
-              color: '#999',
-              marginTop: '8px',
-              wordBreak: 'break-all',
-              maxWidth: '200px'
-            }}>
-              {currentUrl}
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
