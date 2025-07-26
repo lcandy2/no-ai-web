@@ -1,8 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { NextReactP5Wrapper } from "@p5-wrapper/next"
+import dynamic from 'next/dynamic'
 import type { P5CanvasInstance } from "@p5-wrapper/react"
+
+const ReactP5Wrapper = dynamic(
+  () => import('@p5-wrapper/react').then((mod) => mod.ReactP5Wrapper),
+  {
+    ssr: false,
+  }
+)
 
 interface SketchProps {
   currentHour: number
@@ -356,7 +363,7 @@ export default function TimeDisplay() {
       backgroundColor: '#EFF8FF',
       zIndex: 0
     }}>
-      <NextReactP5Wrapper sketch={sketch} currentHour={currentHour} />
+      <ReactP5Wrapper sketch={sketch} currentHour={currentHour} />
     </div>
   )
 }
