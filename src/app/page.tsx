@@ -68,17 +68,28 @@ export default function Home() {
           在过去7天<br />你有
         </div>
         
-        {/* Bottom text */}
+        {/* Bottom text - split into two lines with different sizes */}
         <div style={{
           position: 'absolute',
           bottom: '15%',
           right: '8%',
-          fontSize: 'clamp(36px, 6vw, 72px)',
-          fontWeight: 'normal',
-          lineHeight: 1.2,
           textAlign: 'right'
         }}>
-          小时<br />思考处于待机状态
+          <div style={{
+            fontSize: 'clamp(36px, 6vw, 72px)',
+            fontWeight: 'normal',
+            lineHeight: 1.2,
+            marginBottom: '8px'
+          }}>
+            小时
+          </div>
+          <div style={{
+            fontSize: 'clamp(48px, 8vw, 96px)',
+            fontWeight: 'normal',
+            lineHeight: 1.2
+          }}>
+            思考处于待机状态
+          </div>
         </div>
       </div>
     </div>
