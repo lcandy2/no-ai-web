@@ -152,26 +152,28 @@ const sketch: Sketch<SketchProps> = (p5) => {
   function initializeParticles() {
     particles = []
     
-    // Smart spacing based on screen size - maintain visual quality while optimizing performance
-    let baseSpacing = 25
+    // Smart spacing based on screen size - prioritize performance over particle density
+    let baseSpacing = 40
     let screenArea = p5.width * p5.height
     let spacing = baseSpacing
     
-    // Adaptive spacing: larger screens get slightly larger spacing to control particle count
+    // Aggressive spacing optimization for better performance
     if (screenArea > 2000000) { // Very large screens (>2M pixels)
-      spacing = baseSpacing * 1.4
+      spacing = baseSpacing * 2.0  // Much larger spacing
     } else if (screenArea > 1000000) { // Large screens (>1M pixels) 
-      spacing = baseSpacing * 1.2
+      spacing = baseSpacing * 1.6
+    } else if (screenArea > 600000) { // Medium screens
+      spacing = baseSpacing * 1.3
     } else if (screenArea < 400000) { // Small screens (<400K pixels)
-      spacing = baseSpacing * 0.8
+      spacing = baseSpacing * 1.0
     }
     
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Performance limit: cap at reasonable particle count while maintaining visual quality
-    let maxParticles = Math.min(1200, Math.max(300, Math.floor(screenArea / 1000)))
+    // Much more aggressive particle limit for smooth performance
+    let maxParticles = Math.min(600, Math.max(200, Math.floor(screenArea / 2000)))
     let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
     
     let count = 0
