@@ -13,22 +13,45 @@ class CodeParticle {
   target: any
   chars: string[]
   char: string
+  baseSize: number
   size: number
   opacity: number
   isInShape: boolean
   hasTarget: boolean
+  flickerSpeed: number
+  flickerOffset: number
+  lastCharChange: number
+  currentColor: any
+  colorTransition: number
   p5: any
 
   constructor(x: number, y: number, p5Instance: any) {
     this.p5 = p5Instance
     this.pos = p5Instance.createVector(x, y)
     this.target = this.pos.copy()
-    this.chars = ['0','1','2','3','4','5','6','7','8','9','+','-','*','/','=']
+    
+    // Extended character set like original
+    this.chars = ['0','1','2','3','4','5','6','7','8','9',
+                  '+','-','*','/','=','>','<','!','?','.',
+                  '@','#','$','%','&','(',')','{','}','[',']',
+                  ';',':',',','|','_','~',
+                  'a','b','c','d','e','f','x','y','z','i','j','k']
     this.char = p5Instance.random(this.chars)
-    this.size = 20
+    
+    this.baseSize = 20
+    this.size = this.baseSize
     this.opacity = p5Instance.random(0.1, 0.3)
     this.isInShape = false
     this.hasTarget = false
+    
+    // Animation properties
+    this.flickerSpeed = p5Instance.random(0.03, 0.1)
+    this.flickerOffset = p5Instance.random(p5Instance.TWO_PI)
+    this.lastCharChange = p5Instance.millis()
+    
+    // Color properties
+    this.currentColor = { r: 55, g: 71, b: 89 } // Gray #374759
+    this.colorTransition = 0 // 0 = gray, 1 = orange
   }
 
   setTargetPoint(x: number, y: number, inShape: boolean) {
@@ -39,7 +62,7 @@ class CodeParticle {
   }
 
   update(forming: boolean) {
-    // Move to target position if forming
+    // Smooth movement to target position
     if (forming && this.hasTarget) {
       let d = this.p5.dist(this.pos.x, this.pos.y, this.target.x, this.target.y)
       let speed = this.p5.map(d, 0, 500, 0.02, 0.15)
@@ -47,26 +70,50 @@ class CodeParticle {
       this.pos.y = this.p5.lerp(this.pos.y, this.target.y, speed)
     }
 
-    // Character flicker
-    if (this.p5.random(1) < 0.02) {
-      this.char = this.p5.random(this.chars)
+    // Advanced character flicker with timing
+    let currentTime = this.p5.millis()
+    let flickerInterval = 1000 / (this.flickerSpeed * 50)
+    
+    if (!forming || !this.isInShape) {
+      // Background particles: continuous flicker
+      if (currentTime - this.lastCharChange > flickerInterval) {
+        this.char = this.p5.random(this.chars)
+        this.lastCharChange = currentTime
+      }
+      
+      // Opacity fluctuation with sine wave
+      let flicker = this.p5.sin(this.p5.frameCount * this.flickerSpeed + this.flickerOffset)
+      this.opacity = this.p5.map(flicker, -1, 1, 0, 0.2) // 0-20% transparency
+      
+      // Size breathing effect
+      this.size = this.baseSize + this.p5.sin(this.p5.frameCount * 0.05 + this.flickerOffset) * 2
+      
+      // Color transition back to gray
+      this.colorTransition = this.p5.lerp(this.colorTransition, 0, 0.05)
+    } else {
+      // Number shape particles: more stable
+      let flicker = this.p5.sin(this.p5.frameCount * 0.02 + this.flickerOffset)
+      this.opacity = this.p5.map(flicker, -1, 1, 0.15, 0.2) // 15-20% transparency, more stable
+      this.size = this.p5.lerp(this.size, this.baseSize * 0.85, 0.1)
+      
+      // Reduced flicker frequency for number particles
+      if (this.p5.random(1) < 0.003) {
+        this.char = this.p5.random(this.chars)
+      }
+      
+      // Color transition to orange
+      this.colorTransition = this.p5.lerp(this.colorTransition, 1, 0.08)
     }
     
-    // Opacity based on whether in shape or not
-    if (this.isInShape && forming) {
-      // Particles in number shape are more visible
-      this.opacity += this.p5.random(-0.02, 0.02)
-      this.opacity = this.p5.constrain(this.opacity, 0.6, 0.9)
-    } else {
-      // Background particles are dimmer
-      this.opacity += this.p5.random(-0.05, 0.05)
-      this.opacity = this.p5.constrain(this.opacity, 0.05, 0.3)
-    }
+    // Calculate current color based on transition (gray to orange)
+    this.currentColor.r = this.p5.lerp(55, 248, this.colorTransition)  // 55 -> 248
+    this.currentColor.g = this.p5.lerp(71, 103, this.colorTransition) // 71 -> 103  
+    this.currentColor.b = this.p5.lerp(89, 41, this.colorTransition)  // 89 -> 41
   }
 
   display() {
     this.p5.push()
-    this.p5.fill(55, 71, 89, this.opacity * 255)
+    this.p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
     this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
     this.p5.textSize(this.size)
     this.p5.text(this.char, this.pos.x, this.pos.y)
