@@ -155,10 +155,8 @@ const sketch: Sketch<SketchProps> = (p5) => {
   p5.updateWithProps = (props: SketchProps) => {
     if (props.displayNumber !== undefined && props.displayNumber !== displayNumber) {
       displayNumber = props.displayNumber
-      // Only re-form the number using existing particles, don't create new ones
-      if (particles.length > 0) {
-        setTimeout(() => formNumber(displayNumber.toString()), 100)
-      }
+      // Re-form the number using existing particles
+      setTimeout(() => formNumber(displayNumber.toString()), 100)
     }
     
     if (props.showDebug !== undefined) {
@@ -343,20 +341,25 @@ const sketch: Sketch<SketchProps> = (p5) => {
   
   p5.draw = () => {
     let frameStart = p5.millis()
-    // No background clearing - let the background particles show through
+    // Clear the canvas completely to prevent particle accumulation
+    p5.clear()
     
     // Set common rendering states once to avoid repetition
     p5.textFont('GoodfonT-NET-XS03, monospace')
     p5.textAlign(p5.CENTER, p5.CENTER)
     
-    // Update and display particles (same logic as original but only for number particles)
+    // Count active particles for debug
+    let activeParticles = 0
+    
+    // Update and display particles - be very strict about what we render
     for (let i = 0; i < particles.length; i++) {
       let particle = particles[i]
       
-      // Only display particles that are part of the number shape
-      if (particle.isInShape) {
+      // Only update and display particles that are definitely part of the number shape
+      if (forming && particle.isInShape && particle.hasTarget) {
         particle.update(forming)
         particle.display()
+        activeParticles++
       }
     }
     
@@ -378,11 +381,13 @@ const sketch: Sketch<SketchProps> = (p5) => {
       let y = 120 // Offset from background debug
       
       p5.text('Number: ' + displayNumber, 20, y); y += lineHeight
-      p5.text('Number Particles: ' + particles.length, 20, y); y += lineHeight
+      p5.text('Total Particles: ' + particles.length, 20, y); y += lineHeight
+      p5.text('Active Particles: ' + activeParticles, 20, y); y += lineHeight
       p5.text('Number FPS: ' + Math.round(p5.frameRate()), 20, y); y += lineHeight
       p5.text('Number Frame: ' + Math.round(avgFrameTime) + 'ms', 20, y); y += lineHeight
       if (forming) {
         p5.text('Points: ' + digitPoints.length, 20, y); y += lineHeight
+        p5.text('Forming: ' + forming, 20, y); y += lineHeight
       }
       p5.pop()
     }
