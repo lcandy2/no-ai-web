@@ -143,16 +143,17 @@ const sketch: Sketch<SketchProps> = (p5) => {
     p5.createCanvas(p5.windowWidth, p5.windowHeight)
     p5.background(239, 248, 255)
     
-    // Create optimized particle grid
-    initializeParticles()
-    
-    // Add vertical line particles for background effect
-    addVerticalLines()
-    
-    // Form the number immediately for better user experience
+    // Use setTimeout to ensure canvas is fully initialized before creating particles
     setTimeout(() => {
+      // Create optimized particle grid
+      initializeParticles()
+      
+      // Add vertical line particles for background effect
+      addVerticalLines()
+      
+      // Form the number
       formNumber(displayNumber.toString())
-    }, 50)
+    }, 100)
   }
 
   p5.updateWithProps = (props: SketchProps) => {
@@ -170,6 +171,12 @@ const sketch: Sketch<SketchProps> = (p5) => {
   // Initialize particle system with smart density optimization
   function initializeParticles() {
     particles = []
+    
+    // Safety check: ensure P5 is properly initialized
+    if (!p5.width || !p5.height) {
+      console.warn('P5 canvas not yet initialized, skipping particle initialization')
+      return
+    }
     
     // Slightly smaller spacing for more particles and better visual density
     let baseSpacing = 35
