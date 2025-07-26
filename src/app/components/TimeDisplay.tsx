@@ -148,37 +148,64 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
   }
 
-  // Initialize particle system (optimized for performance)
+  // Initialize particle system with smart density optimization
   function initializeParticles() {
     particles = []
     
-    // Original spacing for exact particle density match
-    let spacing = 25
+    // Smart spacing based on screen size - maintain visual quality while optimizing performance
+    let baseSpacing = 25
+    let screenArea = p5.width * p5.height
+    let spacing = baseSpacing
+    
+    // Adaptive spacing: larger screens get slightly larger spacing to control particle count
+    if (screenArea > 2000000) { // Very large screens (>2M pixels)
+      spacing = baseSpacing * 1.4
+    } else if (screenArea > 1000000) { // Large screens (>1M pixels) 
+      spacing = baseSpacing * 1.2
+    } else if (screenArea < 400000) { // Small screens (<400K pixels)
+      spacing = baseSpacing * 0.8
+    }
+    
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
+    let totalParticles = cols * rows
     
+    // Performance limit: cap at reasonable particle count while maintaining visual quality
+    let maxParticles = Math.min(1200, Math.max(300, Math.floor(screenArea / 1000)))
+    let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
+    
+    let count = 0
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        let x = i * spacing + p5.random(-5, 5)
-        let y = j * spacing + p5.random(-5, 5) + 60
-        
-        // Ensure particles are within screen bounds
-        x = p5.constrain(x, 10, p5.width - 10)
-        y = p5.constrain(y, 70, p5.height - 10)
-        
-        particles.push(new CodeParticle(x, y, p5))
+        if (count % skipRatio === 0) {
+          let x = i * spacing + p5.random(-5, 5)
+          let y = j * spacing + p5.random(-5, 5) + 60
+          
+          // Ensure particles are within screen bounds
+          x = p5.constrain(x, 10, p5.width - 10)
+          y = p5.constrain(y, 70, p5.height - 10)
+          
+          particles.push(new CodeParticle(x, y, p5))
+        }
+        count++
       }
     }
     
-    console.log('Created ' + particles.length + ' particles')
+    console.log(`Created ${particles.length} particles (${Math.round(spacing)}px spacing, ${p5.width}x${p5.height})`)
   }
 
-  // Generate solid digit points (adapted for screen size)
+  // Generate solid digit points with responsive font sizing
   function generateSolidDigitPoints(val: string) {
     let points: any[] = []
     
-    // Use original fontSize=2400 with exact scaling factors
-    let fontSize = 2400
+    // Responsive font sizing: maintain original proportions but adapt to screen
+    let baseFontSize = 2400
+    let screenScaleFactor = Math.min(p5.width / 1920, p5.height / 1080) // Scale based on 1920x1080 reference
+    screenScaleFactor = Math.max(0.3, Math.min(1.5, screenScaleFactor)) // Clamp between 30% and 150%
+    
+    let fontSize = baseFontSize * screenScaleFactor
+    
+    // Apply original digit-length scaling factors
     if (val.length === 2) {
       fontSize = fontSize * 0.5
     } else if (val.length === 3) {
@@ -197,10 +224,18 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Draw number in canvas center (exactly like original)
     pg.text(val, p5.width/2, p5.height/2)
     
-    // Scan pixels to find black areas (number shape) - exactly like original
+    // Optimized pixel scanning with adaptive step size
     pg.loadPixels()
     let d = pg.pixelDensity()
-    let step = 8 // Original step value for exact accuracy
+    
+    // Adaptive step size: smaller screens use smaller steps for accuracy, larger screens use bigger steps for performance
+    let step = 8
+    let screenArea = p5.width * p5.height
+    if (screenArea > 2000000) {
+      step = 12 // Large screens: bigger steps for performance
+    } else if (screenArea < 400000) {
+      step = 6  // Small screens: smaller steps for accuracy
+    }
     
     for (let x = 0; x < p5.width; x += step) {
       for (let y = 0; y < p5.height; y += step) {
@@ -218,7 +253,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
       }
     }
     
-    console.log('Font size used:', Math.round(fontSize), 'Screen:', p5.width + 'x' + p5.height)
+    console.log(`Font: ${Math.round(fontSize)}px (scale: ${Math.round(screenScaleFactor*100)}%), Step: ${step}px, Points: ${points.length}, Screen: ${p5.width}x${p5.height}`)
     
     pg.remove() // Clean up temporary canvas
     return points
@@ -306,32 +341,56 @@ const sketch: Sketch<SketchProps> = (p5) => {
     return arr
   }
 
+  // Performance monitoring variables
+  let frameTimeHistory: number[] = []
+  let lastFrameTime = 0
+  
   p5.draw = () => {
+    let frameStart = p5.millis()
     p5.background(239, 248, 255)
     
-    // Display particles
+    // Display particles with performance optimization
     for (let particle of particles) {
       particle.update(forming)
       particle.display()
     }
     
-    // Debug info
+    // Performance monitoring
+    let frameTime = p5.millis() - frameStart
+    frameTimeHistory.push(frameTime)
+    if (frameTimeHistory.length > 60) frameTimeHistory.shift()
+    
+    let avgFrameTime = frameTimeHistory.reduce((a, b) => a + b, 0) / frameTimeHistory.length
+    
+    // Enhanced debug info with performance metrics
     p5.push()
-    p5.fill(55, 71, 89)
+    p5.fill(55, 71, 89, 150)
     p5.textAlign(p5.LEFT, p5.TOP)
-    p5.textSize(16)
-    p5.text('Hour: ' + currentHour, 20, 20)
-    p5.text('Particles: ' + particles.length, 20, 40)
-    p5.text('Forming: ' + (forming ? 'Yes' : 'No'), 20, 60)
+    p5.textSize(Math.max(12, Math.min(16, p5.width / 100))) // Responsive text size
+    let lineHeight = p5.textSize() * 1.2
+    let y = 20
+    
+    p5.text('Hour: ' + currentHour, 20, y); y += lineHeight
+    p5.text('Particles: ' + particles.length, 20, y); y += lineHeight
+    p5.text('FPS: ' + Math.round(p5.frameRate()), 20, y); y += lineHeight
+    p5.text('Frame: ' + Math.round(avgFrameTime) + 'ms', 20, y); y += lineHeight
     if (forming) {
-      p5.text('Target points: ' + digitPoints.length, 20, 80)
+      p5.text('Points: ' + digitPoints.length, 20, y); y += lineHeight
     }
+    p5.text('Screen: ' + p5.width + 'x' + p5.height, 20, y)
     p5.pop()
   }
 
   p5.windowResized = () => {
     p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
     initializeParticles()
+    
+    // Re-form the current number with new responsive sizing
+    if (forming) {
+      setTimeout(() => {
+        formNumber(currentHour.toString())
+      }, 100)
+    }
   }
 }
 
