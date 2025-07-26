@@ -135,10 +135,10 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Create optimized particle grid
     initializeParticles()
     
-    // Form the number after a short delay
+    // Form the number immediately for better user experience
     setTimeout(() => {
       formNumber(currentHour.toString())
-    }, 200)
+    }, 50)
   }
 
   p5.updateWithProps = (props: SketchProps) => {
@@ -152,28 +152,28 @@ const sketch: Sketch<SketchProps> = (p5) => {
   function initializeParticles() {
     particles = []
     
-    // Aggressive spacing for smooth performance - much larger gaps between particles
-    let baseSpacing = 80
+    // Balanced spacing for good performance and visual effect
+    let baseSpacing = 50
     let screenArea = p5.width * p5.height
     let spacing = baseSpacing
     
-    // Very aggressive spacing to drastically reduce particle count
+    // Balanced spacing to maintain visual density while keeping good performance
     if (screenArea > 2000000) { // Very large screens (>2M pixels)
-      spacing = baseSpacing * 2.5
+      spacing = baseSpacing * 1.8
     } else if (screenArea > 1000000) { // Large screens (>1M pixels) 
-      spacing = baseSpacing * 2.0
+      spacing = baseSpacing * 1.4
     } else if (screenArea > 600000) { // Medium screens
-      spacing = baseSpacing * 1.5
-    } else {
       spacing = baseSpacing * 1.2
+    } else {
+      spacing = baseSpacing
     }
     
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Extremely aggressive particle limit - prioritize performance over density
-    let maxParticles = Math.min(300, Math.max(150, Math.floor(screenArea / 5000)))
+    // Balanced particle limit for good visual effect and performance
+    let maxParticles = Math.min(500, Math.max(200, Math.floor(screenArea / 3000)))
     let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
     
     let count = 0
@@ -230,15 +230,15 @@ const sketch: Sketch<SketchProps> = (p5) => {
     pg.loadPixels()
     let d = pg.pixelDensity()
     
-    // Much larger step sizes to dramatically reduce digitPoints
-    let step = 16 // Start with larger base step
+    // Balanced step sizes for adequate detail while maintaining performance
+    let step = 12 // Balanced base step
     let screenArea = p5.width * p5.height
     if (screenArea > 2000000) {
-      step = 24 // Very large screens: much bigger steps
+      step = 18 // Large screens: bigger steps for performance
     } else if (screenArea > 1000000) {
-      step = 20 // Large screens: bigger steps
+      step = 15 // Medium-large screens
     } else if (screenArea < 400000) {
-      step = 12 // Small screens: moderate steps
+      step = 10 // Small screens: smaller steps for detail
     }
     
     for (let x = 0; x < p5.width; x += step) {
@@ -289,9 +289,10 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Performance fix: DON'T create particles equal to digitPoints count!
     // We work with existing particles only - no new particle creation
     
-    // Limit digitPoints if too many for performance
-    if (digitPoints.length > particles.length * 3) {
-      digitPoints = digitPoints.slice(0, particles.length * 3)
+    // Limit digitPoints if too many for performance - but allow reasonable density
+    let maxTargetPoints = Math.max(particles.length * 2, 400) // At least 400 points for good shape
+    if (digitPoints.length > maxTargetPoints) {
+      digitPoints = digitPoints.slice(0, maxTargetPoints)
       console.log('Limited target points to', digitPoints.length, 'for performance')
     }
     
