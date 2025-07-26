@@ -476,6 +476,50 @@ export default function TimeDisplay({ showDebug = false }: TimeDisplayProps) {
       fontFamily: 'GoodfonT-NET-XS03, monospace' // Apply custom font
     }}>
       <NextReactP5Wrapper sketch={sketch} currentHour={currentHour} showDebug={showDebug} />
+      
+      {/* Floating text overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'PingFang SC, Microsoft YaHei, sans-serif',
+        color: '#374759',
+        textAlign: 'center'
+      }}>
+        {/* Top text */}
+        <div style={{
+          position: 'absolute',
+          top: '15%',
+          left: '8%',
+          fontSize: 'clamp(24px, 4vw, 48px)',
+          fontWeight: 'normal',
+          lineHeight: 1.2,
+          writingMode: 'horizontal-tb'
+        }}>
+          在过去7天<br />你有
+        </div>
+        
+        {/* Bottom text */}
+        <div style={{
+          position: 'absolute',
+          bottom: '15%',
+          right: '8%',
+          fontSize: 'clamp(24px, 4vw, 48px)',
+          fontWeight: 'normal',
+          lineHeight: 1.2,
+          textAlign: 'right'
+        }}>
+          小时<br />思考处于待机状态
+        </div>
+      </div>
     </div>
   )
 }
