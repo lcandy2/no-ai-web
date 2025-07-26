@@ -69,11 +69,12 @@ class CodeParticle {
       let dy = this.target.y - this.pos.y
       let d = Math.sqrt(dx * dx + dy * dy) // Faster than p5.dist
       
-      if (d < 3) {
+      if (d < 5) {
         this.pos.x = this.target.x
         this.pos.y = this.target.y
       } else {
-        let speed = d > 300 ? 0.2 : 0.06 + (d / 300) * 0.14 // Simplified mapping
+        // Faster animation speeds
+        let speed = d > 200 ? 0.4 : 0.15 + (d / 200) * 0.25 // Much faster movement
         this.pos.x += dx * speed
         this.pos.y += dy * speed
       }
