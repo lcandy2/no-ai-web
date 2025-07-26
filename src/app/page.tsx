@@ -207,39 +207,49 @@ export default function Home() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           color: '#374759',
           zIndex: 2,
-          fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
+          fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif',
+          padding: '0 40px'
         }}>
+          {/* Main text - left aligned */}
           <div style={{
-            textAlign: 'center',
-            maxWidth: '900px',
-            padding: '0 40px'
+            fontSize: 'clamp(36px, 6vw, 72px)',
+            fontWeight: 'normal',
+            lineHeight: 1.3,
+            marginBottom: '20px',
+            textAlign: 'left'
           }}>
-            {/* Main text */}
-            <div style={{
-              fontSize: 'clamp(36px, 6vw, 72px)',
-              fontWeight: 'normal',
-              lineHeight: 1.3,
-              marginBottom: '40px'
-            }}>
-              你花了<span style={{
-                fontFamily: 'GoodfonT-NET-XS03, monospace',
-                fontWeight: 'bold',
-                color: '#F86729',
-                fontSize: '1.2em'
-              }}>{Math.round(displayHours * 60 / 8)}</span>分钟
-            </div>
-            
-            <div style={{
-              fontSize: 'clamp(28px, 5vw, 56px)',
-              fontWeight: 'normal',
-              lineHeight: 1.3,
-              color: '#666'
-            }}>
-              和AI探讨什么什么什么
-            </div>
+            你花了<span style={{
+              fontFamily: 'GoodfonT-NET-XS03, monospace',
+              fontWeight: 'bold',
+              color: '#F86729',
+              fontSize: '1.2em'
+            }}>{Math.round(displayHours * 60 / 8)}</span>分钟
+          </div>
+          
+          {/* AI discussion text - smaller font */}
+          <div style={{
+            fontSize: 'clamp(24px, 4vw, 48px)',
+            fontWeight: 'normal',
+            lineHeight: 1.3,
+            color: '#374759',
+            marginBottom: '20px',
+            textAlign: 'left'
+          }}>
+            和AI探讨
+          </div>
+
+          {/* Discussion content - same size as first line */}
+          <div style={{
+            fontSize: 'clamp(36px, 6vw, 72px)',
+            fontWeight: 'normal',
+            lineHeight: 1.3,
+            color: '#374759',
+            textAlign: 'left'
+          }}>
+            什么什么什么
           </div>
         </div>
       </div>
