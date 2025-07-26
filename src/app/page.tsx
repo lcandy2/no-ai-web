@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import BackgroundParticles from './components/BackgroundParticles'
 import NumberDisplay from './components/NumberDisplay'
+import StatItem, { Number } from './components/StatItem'
 
 export default function Home() {
   const [currentHour, setCurrentHour] = useState(new Date().getHours())
@@ -134,92 +135,40 @@ export default function Home() {
               fontSize: 'clamp(48px, 8vw, 96px)',
               fontWeight: 'normal',
               marginBottom: '60px',
-              textAlign: 'start'
+              textAlign: 'start',
+              fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
             }}>
               相当于
             </div>
 
-            {/* Statistics list */}
+            {/* Statistics list using StatItem components */}
             <div style={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '40px',
-              fontSize: 'clamp(18px, 3vw, 28px)'
+              flexDirection: 'column'
             }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '2px solid #F86729',
-                paddingBottom: '20px'
-              }}>
-                <span>整整</span>
-                <span style={{ fontSize: 'clamp(24px, 4vw, 48px)', color: '#F86729', fontWeight: 'bold' }}>10</span>
-                <span>个标准工作日</span>
-              </div>
+              <StatItem highlight={true}>
+                整整<Number highlight={true}>10</Number>个标准工作日
+              </StatItem>
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '20px'
-              }}>
-                <span>睡眠时间相当于一个人正常睡眠</span>
-                <span style={{ fontSize: 'clamp(24px, 4vw, 48px)', color: '#F86729', fontWeight: 'bold' }}>11</span>
-                <span>晚</span>
-              </div>
+              <StatItem>
+                睡眠时间相当于一个人正常睡眠<Number>11</Number>晚
+              </StatItem>
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '20px'
-              }}>
-                <span>电影时长可以看完</span>
-                <span style={{ fontSize: 'clamp(24px, 4vw, 48px)', color: '#F86729', fontWeight: 'bold' }}>41</span>
-                <span>部</span>
-                <span style={{ fontSize: 'clamp(20px, 3vw, 32px)', color: '#F86729', fontWeight: 'bold' }}>2</span>
-                <span>小时电影</span>
-              </div>
+              <StatItem>
+                电影时长可以看完<Number>41</Number>部<Number>2</Number>小时电影
+              </StatItem>
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '20px'
-              }}>
-                <span>播客时长足够听完</span>
-                <span style={{ fontSize: 'clamp(24px, 4vw, 48px)', color: '#F86729', fontWeight: 'bold' }}>165</span>
-                <span>集</span>
-                <span style={{ fontSize: 'clamp(20px, 3vw, 32px)', color: '#F86729', fontWeight: 'bold' }}>30</span>
-                <span>分钟播客</span>
-              </div>
+              <StatItem>
+                播客时长足够听完<Number>165</Number>集<Number>30</Number>分钟播客
+              </StatItem>
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '20px'
-              }}>
-                <span>飞行时间可以从伦敦飞北京来回</span>
-                <span style={{ fontSize: 'clamp(24px, 4vw, 48px)', color: '#F86729', fontWeight: 'bold' }}>4</span>
-                <span>次</span>
-              </div>
+              <StatItem>
+                飞行时间可以从伦敦飞北京来回<Number>4</Number>次
+              </StatItem>
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingBottom: '20px'
-              }}>
-                <span>阅读时间足够读完</span>
-                <span style={{ fontSize: 'clamp(24px, 4vw, 48px)', color: '#F86729', fontWeight: 'bold' }}>6</span>
-                <span>本小说</span>
-              </div>
+              <StatItem>
+                阅读时间足够读完<Number>6</Number>本小说
+              </StatItem>
             </div>
 
             {/* Bottom note */}
