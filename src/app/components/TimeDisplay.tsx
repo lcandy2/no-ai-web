@@ -284,25 +284,25 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
   }
 
-  // Evenly distribute particles to target points (performance optimized)
+  // Evenly distribute particles to target points (performance balanced)
   function assignTargetsEvenly() {
-    // Performance fix: DON'T create particles equal to digitPoints count!
-    // We work with existing particles only - no new particle creation
+    // Smart particle management: create additional particles if needed, but with limits
+    let targetParticleCount = Math.min(digitPoints.length, 600) // Cap at 600 for performance
     
-    // Limit digitPoints if too many for performance - but allow reasonable density
-    let maxTargetPoints = Math.max(particles.length * 2, 400) // At least 400 points for good shape
-    if (digitPoints.length > maxTargetPoints) {
-      digitPoints = digitPoints.slice(0, maxTargetPoints)
-      console.log('Limited target points to', digitPoints.length, 'for performance')
+    // Create additional particles if we don't have enough
+    while (particles.length < targetParticleCount) {
+      particles.push(new CodeParticle(p5.random(p5.width), p5.random(p5.height), p5))
     }
     
-    // Reset all particle states (exactly like original)
+    console.log(`Particles: ${particles.length}, Target points: ${digitPoints.length}`)
+    
+    // Reset all particle states
     particles.forEach(particle => {
       particle.isInShape = false
       particle.hasTarget = false
     })
     
-    // Method 1: If particle count >= target point count (exactly like original)
+    // Assign particles to digit points
     if (particles.length >= digitPoints.length) {
       // Shuffle particle array to ensure random assignment (exactly like original)
       let shuffledParticles = shuffle(particles.slice())
@@ -332,6 +332,24 @@ const sketch: Sketch<SketchProps> = (p5) => {
             false
           )
           index++
+        }
+      }
+    } else {
+      // If we have fewer particles than target points, assign multiple points to some particles
+      let particlesPerPoint = Math.floor(digitPoints.length / particles.length)
+      let extraPoints = digitPoints.length % particles.length
+      let pointIndex = 0
+      
+      for (let i = 0; i < particles.length && pointIndex < digitPoints.length; i++) {
+        // Each particle gets at least one point, some get extra
+        let count = particlesPerPoint + (i < extraPoints ? 1 : 0)
+        if (count > 0 && pointIndex < digitPoints.length) {
+          particles[i].setTargetPoint(
+            digitPoints[pointIndex].x + p5.random(-3, 3),
+            digitPoints[pointIndex].y + p5.random(-3, 3),
+            true
+          )
+          pointIndex += count
         }
       }
     }
