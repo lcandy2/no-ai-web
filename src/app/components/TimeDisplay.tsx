@@ -36,13 +36,8 @@ class CodeParticle {
     this.opacity = this.p5.constrain(this.opacity, 0.05, 0.4)
   }
 
-  display(fontLoaded: boolean, codeFont: any) {
+  display() {
     this.p5.push()
-    
-    if (fontLoaded && codeFont) {
-      this.p5.textFont(codeFont)
-    }
-    
     this.p5.fill(55, 71, 89, this.opacity * 255)
     this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
     this.p5.textSize(this.size)
@@ -54,33 +49,10 @@ class CodeParticle {
 const sketch: Sketch<SketchProps> = (p5) => {
   let particles: CodeParticle[] = []
   let currentHour = new Date().getHours()
-  let codeFont: any = null
-  let fontLoaded = false
-  let fontLoadAttempted = false
 
   p5.setup = () => {
     p5.createCanvas(p5.windowWidth, p5.windowHeight)
     p5.background(239, 248, 255)
-    
-    // Try to load font in setup (safer than preload)
-    if (!fontLoadAttempted) {
-      fontLoadAttempted = true
-      try {
-        codeFont = p5.loadFont('/fonts/GoodfonT-NET-XS03.ttf', 
-          () => {
-            console.log('Font loaded successfully!')
-            fontLoaded = true
-          },
-          () => {
-            console.log('Font loading failed, using fallback')
-            fontLoaded = false
-          }
-        )
-      } catch (e) {
-        console.log('Error loading font:', e)
-        fontLoaded = false
-      }
-    }
     
     // Create simple particle grid
     initializeParticles()
@@ -118,9 +90,6 @@ const sketch: Sketch<SketchProps> = (p5) => {
     
     // Display current hour in center
     p5.push()
-    if (fontLoaded && codeFont) {
-      p5.textFont(codeFont)
-    }
     p5.fill(55, 71, 89)
     p5.textAlign(p5.CENTER, p5.CENTER)
     p5.textSize(200)
@@ -130,7 +99,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Display particles
     for (let particle of particles) {
       particle.update()
-      particle.display(fontLoaded, codeFont)
+      particle.display()
     }
     
     // Debug info
@@ -140,7 +109,6 @@ const sketch: Sketch<SketchProps> = (p5) => {
     p5.textSize(16)
     p5.text('Hour: ' + currentHour, 20, 20)
     p5.text('Particles: ' + particles.length, 20, 40)
-    p5.text('Font: ' + (fontLoaded ? 'Loaded' : 'Not loaded'), 20, 60)
     p5.pop()
   }
 
