@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import BackgroundParticles from './components/BackgroundParticles'
 import NumberDisplay from './components/NumberDisplay'
 import StatItem, { Number } from './components/StatItem'
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams()
   const [displayHours, setDisplayHours] = useState(23)
   const [displayName, setDisplayName] = useState('')
@@ -283,5 +283,13 @@ export default function Home() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   )
 }
