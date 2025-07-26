@@ -1,14 +1,128 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { type Sketch } from "@p5-wrapper/react"
 import { NextReactP5Wrapper } from "@p5-wrapper/next"
+import type { P5CanvasInstance } from "@p5-wrapper/react"
 
 interface SketchProps {
   currentHour: number
 }
 
-const timeSketch: Sketch<SketchProps> = (p5) => {
+class CodeParticle {
+  pos: any
+  originalPos: any
+  vel: any
+  target: any
+  chars: string[]
+  char: string
+  baseSize: number
+  size: number
+  flickerSpeed: number
+  flickerOffset: number
+  opacity: number
+  isInShape: boolean
+  hasTarget: boolean
+  lastCharChange: number
+  currentColor: any
+  targetColor: any
+  colorTransition: number
+  p5: any
+
+  constructor(x: number, y: number, p5Instance: any) {
+    this.p5 = p5Instance
+    this.pos = p5Instance.createVector(x, y)
+    this.originalPos = this.pos.copy()
+    this.vel = p5Instance.createVector(0, 0)
+    this.target = this.pos.copy()
+    
+    this.chars = ['0','1','2','3','4','5','6','7','8','9',
+                  '+','-','*','/','=','>','<','!','?','.',
+                  '@','#','$','%','&','(',')','{','}','[',']',
+                  ';',':',',','|','_','~',
+                  'a','b','c','d','e','f','x','y','z','i','j','k']
+    this.char = p5Instance.random(this.chars)
+    
+    this.baseSize = 30
+    this.size = this.baseSize
+    
+    this.flickerSpeed = p5Instance.random(0.03, 0.1)
+    this.flickerOffset = p5Instance.random(p5Instance.TWO_PI)
+    this.opacity = 0.1
+    this.isInShape = false
+    this.hasTarget = false
+    this.lastCharChange = p5Instance.millis()
+    
+    this.currentColor = { r: 55, g: 71, b: 89 }
+    this.targetColor = { r: 248, g: 103, b: 41 }
+    this.colorTransition = 0
+  }
+
+  setTargetPoint(x: number, y: number, inShape: boolean) {
+    this.target.x = x
+    this.target.y = y
+    this.isInShape = inShape
+    this.hasTarget = true
+  }
+
+  update(forming: boolean, fontLoaded: boolean, codeFont: any) {
+    if (forming && this.hasTarget) {
+      let d = this.p5.dist(this.pos.x, this.pos.y, this.target.x, this.target.y)
+      let speed = this.p5.map(d, 0, 500, 0.02, 0.15)
+      this.pos.x = this.p5.lerp(this.pos.x, this.target.x, speed)
+      this.pos.y = this.p5.lerp(this.pos.y, this.target.y, speed)
+    }
+    
+    let currentTime = this.p5.millis()
+    let flickerInterval = 1000 / (this.flickerSpeed * 50)
+    
+    if (!forming || !this.isInShape) {
+      if (currentTime - this.lastCharChange > flickerInterval) {
+        this.char = this.p5.random(this.chars)
+        this.lastCharChange = currentTime
+      }
+      
+      let flicker = this.p5.sin(this.p5.frameCount * this.flickerSpeed + this.flickerOffset)
+      this.opacity = this.p5.map(flicker, -1, 1, 0, 0.2)
+      
+      this.size = this.baseSize + this.p5.sin(this.p5.frameCount * 0.05 + this.flickerOffset) * 2
+      
+      this.colorTransition = this.p5.lerp(this.colorTransition, 0, 0.05)
+    } else {
+      let flicker = this.p5.sin(this.p5.frameCount * 0.02 + this.flickerOffset)
+      this.opacity = this.p5.map(flicker, -1, 1, 0.15, 0.2)
+      this.size = this.p5.lerp(this.size, this.baseSize * 0.85, 0.1)
+      
+      if (this.p5.random(1) < 0.003) {
+        this.char = this.p5.random(this.chars)
+      }
+      
+      this.colorTransition = this.p5.lerp(this.colorTransition, 1, 0.08)
+    }
+    
+    this.currentColor.r = this.p5.lerp(55, 248, this.colorTransition)
+    this.currentColor.g = this.p5.lerp(71, 103, this.colorTransition)
+    this.currentColor.b = this.p5.lerp(89, 41, this.colorTransition)
+  }
+
+  display(fontLoaded: boolean, codeFont: any) {
+    this.p5.push()
+    
+    if (fontLoaded && codeFont) {
+      this.p5.textFont(codeFont)
+    } else {
+      this.p5.textFont('Courier New')
+    }
+    
+    this.p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
+    this.p5.noStroke()
+    this.p5.textSize(this.size)
+    this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
+    this.p5.text(this.char, this.pos.x, this.pos.y)
+    this.p5.pop()
+  }
+}
+
+function sketch(p5: P5CanvasInstance<SketchProps>) {
   let codeFont: any
   let particles: CodeParticle[] = []
   let digitPoints: any[] = []
@@ -35,7 +149,6 @@ const timeSketch: Sketch<SketchProps> = (p5) => {
     p5.background(239, 248, 255)
     initializeParticles()
     
-    // Form the current hour immediately
     setTimeout(() => {
       formNumber(currentHour.toString())
     }, 100)
@@ -63,7 +176,7 @@ const timeSketch: Sketch<SketchProps> = (p5) => {
         x = p5.constrain(x, 10, p5.width - 10)
         y = p5.constrain(y, 70, p5.height - 10)
         
-        particles.push(new CodeParticle(x, y))
+        particles.push(new CodeParticle(x, y, p5))
       }
     }
     
@@ -73,7 +186,6 @@ const timeSketch: Sketch<SketchProps> = (p5) => {
   p5.draw = () => {
     p5.background(239, 248, 255)
     
-    // Debug info
     p5.push()
     p5.fill(55, 71, 89, 51)
     p5.textSize(12)
@@ -87,8 +199,8 @@ const timeSketch: Sketch<SketchProps> = (p5) => {
     p5.pop()
     
     for (let particle of particles) {
-      particle.update()
-      particle.display()
+      particle.update(forming, fontLoaded, codeFont)
+      particle.display(fontLoaded, codeFont)
     }
   }
 
@@ -162,12 +274,12 @@ const timeSketch: Sketch<SketchProps> = (p5) => {
     let neededParticles = Math.max(digitPoints.length, particles.length)
     
     while (particles.length < neededParticles) {
-      particles.push(new CodeParticle(p5.random(p5.width), p5.random(p5.height)))
+      particles.push(new CodeParticle(p5.random(p5.width), p5.random(p5.height), p5))
     }
     
-    particles.forEach(p => {
-      p.isInShape = false
-      p.hasTarget = false
+    particles.forEach(particle => {
+      particle.isInShape = false
+      particle.hasTarget = false
     })
     
     if (particles.length >= digitPoints.length) {
@@ -210,118 +322,6 @@ const timeSketch: Sketch<SketchProps> = (p5) => {
     return arr
   }
 
-  class CodeParticle {
-    pos: any
-    originalPos: any
-    vel: any
-    target: any
-    chars: string[]
-    char: string
-    baseSize: number
-    size: number
-    flickerSpeed: number
-    flickerOffset: number
-    opacity: number
-    isInShape: boolean
-    hasTarget: boolean
-    lastCharChange: number
-    currentColor: any
-    targetColor: any
-    colorTransition: number
-
-    constructor(x: number, y: number) {
-      this.pos = p5.createVector(x, y)
-      this.originalPos = this.pos.copy()
-      this.vel = p5.createVector(0, 0)
-      this.target = this.pos.copy()
-      
-      this.chars = ['0','1','2','3','4','5','6','7','8','9',
-                    '+','-','*','/','=','>','<','!','?','.',
-                    '@','#','$','%','&','(',')','{','}','[',']',
-                    ';',':',',','|','_','~',
-                    'a','b','c','d','e','f','x','y','z','i','j','k']
-      this.char = p5.random(this.chars)
-      
-      this.baseSize = 30
-      this.size = this.baseSize
-      
-      this.flickerSpeed = p5.random(0.03, 0.1)
-      this.flickerOffset = p5.random(p5.TWO_PI)
-      this.opacity = 0.1
-      this.isInShape = false
-      this.hasTarget = false
-      this.lastCharChange = p5.millis()
-      
-      this.currentColor = { r: 55, g: 71, b: 89 }
-      this.targetColor = { r: 248, g: 103, b: 41 }
-      this.colorTransition = 0
-    }
-
-    setTargetPoint(x: number, y: number, inShape: boolean) {
-      this.target.x = x
-      this.target.y = y
-      this.isInShape = inShape
-      this.hasTarget = true
-    }
-
-    update() {
-      if (forming && this.hasTarget) {
-        let d = p5.dist(this.pos.x, this.pos.y, this.target.x, this.target.y)
-        let speed = p5.map(d, 0, 500, 0.02, 0.15)
-        this.pos.x = p5.lerp(this.pos.x, this.target.x, speed)
-        this.pos.y = p5.lerp(this.pos.y, this.target.y, speed)
-      }
-      
-      let currentTime = p5.millis()
-      let flickerInterval = 1000 / (this.flickerSpeed * 50)
-      
-      if (!forming || !this.isInShape) {
-        if (currentTime - this.lastCharChange > flickerInterval) {
-          this.char = p5.random(this.chars)
-          this.lastCharChange = currentTime
-        }
-        
-        let flicker = p5.sin(p5.frameCount * this.flickerSpeed + this.flickerOffset)
-        this.opacity = p5.map(flicker, -1, 1, 0, 0.2)
-        
-        this.size = this.baseSize + p5.sin(p5.frameCount * 0.05 + this.flickerOffset) * 2
-        
-        this.colorTransition = p5.lerp(this.colorTransition, 0, 0.05)
-      } else {
-        let flicker = p5.sin(p5.frameCount * 0.02 + this.flickerOffset)
-        this.opacity = p5.map(flicker, -1, 1, 0.15, 0.2)
-        this.size = p5.lerp(this.size, this.baseSize * 0.85, 0.1)
-        
-        if (p5.random(1) < 0.003) {
-          this.char = p5.random(this.chars)
-        }
-        
-        this.colorTransition = p5.lerp(this.colorTransition, 1, 0.08)
-      }
-      
-      this.currentColor.r = p5.lerp(55, 248, this.colorTransition)
-      this.currentColor.g = p5.lerp(71, 103, this.colorTransition)
-      this.currentColor.b = p5.lerp(89, 41, this.colorTransition)
-    }
-
-    display() {
-      p5.push()
-      
-      if (fontLoaded && codeFont) {
-        p5.textFont(codeFont)
-      } else {
-        p5.textFont('Courier New')
-      }
-      
-      p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
-      p5.noStroke()
-      p5.textSize(this.size)
-      p5.textAlign(p5.CENTER, p5.CENTER)
-      p5.text(this.char, this.pos.x, this.pos.y)
-      p5.pop()
-    }
-  }
-
   p5.windowResized = () => {
     p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
     initializeParticles()
@@ -340,10 +340,7 @@ export default function TimeDisplay() {
       setCurrentHour(new Date().getHours())
     }
 
-    // Update immediately
     updateHour()
-
-    // Update every minute
     const interval = setInterval(updateHour, 60000)
 
     return () => clearInterval(interval)
@@ -359,7 +356,7 @@ export default function TimeDisplay() {
       backgroundColor: '#EFF8FF',
       zIndex: 0
     }}>
-      <NextReactP5Wrapper sketch={timeSketch} currentHour={currentHour} />
+      <NextReactP5Wrapper sketch={sketch} currentHour={currentHour} />
     </div>
   )
 }
