@@ -10,6 +10,8 @@ export default function Home() {
   const searchParams = useSearchParams()
   const [displayHours, setDisplayHours] = useState(23)
   const [displayName, setDisplayName] = useState('')
+  const [discussionMinutes, setDiscussionMinutes] = useState(72)
+  const [discussionContent, setDiscussionContent] = useState('什么什么什么')
 
   useEffect(() => {
     // Get hours from URL parameter or use default
@@ -25,6 +27,21 @@ export default function Home() {
     const nameParam = searchParams.get('name')
     if (nameParam) {
       setDisplayName(nameParam)
+    }
+
+    // Get discussion minutes from URL parameter
+    const minutesParam = searchParams.get('minutes')
+    if (minutesParam) {
+      const minutes = parseInt(minutesParam, 10)
+      if (!isNaN(minutes) && minutes >= 0) {
+        setDiscussionMinutes(minutes)
+      }
+    }
+
+    // Get discussion content from URL parameter
+    const contentParam = searchParams.get('content')
+    if (contentParam) {
+      setDiscussionContent(contentParam)
     }
   }, [searchParams])
 
@@ -225,7 +242,7 @@ export default function Home() {
                 fontWeight: 'bold',
                 color: '#F86729',
                 fontSize: '1.5em'
-              }}>{Math.round(displayHours * 60 / 8)}</span>分钟
+              }}>{discussionMinutes}</span>分钟
             </div>
           </div>
 
@@ -259,7 +276,7 @@ export default function Home() {
                 color: '#374759',
                 fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
               }}>
-                什么什么什么
+                {discussionContent}
               </div>
             </div>
           </div>
