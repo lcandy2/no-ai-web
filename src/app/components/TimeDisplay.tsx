@@ -40,7 +40,7 @@ class CodeParticle {
     
     this.baseSize = 30
     this.size = this.baseSize
-    this.opacity = p5Instance.random(0.1, 0.3)
+    this.opacity = 0.1
     this.isInShape = false
     this.hasTarget = false
     
@@ -152,49 +152,37 @@ const sketch: Sketch<SketchProps> = (p5) => {
   function initializeParticles() {
     particles = []
     
-    // Optimized spacing for better performance while maintaining visual quality
-    let spacing = 35 // Increased spacing to reduce particle count
+    // Original spacing for exact particle density match
+    let spacing = 25
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
     
-    // Limit maximum particles for performance
-    let maxParticles = 800
-    let totalPossible = cols * rows
-    let skipRatio = totalPossible > maxParticles ? Math.ceil(totalPossible / maxParticles) : 1
-    
-    let count = 0
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        // Skip some particles if too many
-        if (count % skipRatio === 0) {
-          let x = i * spacing + p5.random(-5, 5)
-          let y = j * spacing + p5.random(-5, 5) + 60
-          
-          // Ensure particles are within screen bounds
-          x = p5.constrain(x, 10, p5.width - 10)
-          y = p5.constrain(y, 70, p5.height - 10)
-          
-          particles.push(new CodeParticle(x, y, p5))
-        }
-        count++
+        let x = i * spacing + p5.random(-5, 5)
+        let y = j * spacing + p5.random(-5, 5) + 60
+        
+        // Ensure particles are within screen bounds
+        x = p5.constrain(x, 10, p5.width - 10)
+        y = p5.constrain(y, 70, p5.height - 10)
+        
+        particles.push(new CodeParticle(x, y, p5))
       }
     }
     
-    console.log('Created ' + particles.length + ' particles (optimized)')
+    console.log('Created ' + particles.length + ' particles')
   }
 
   // Generate solid digit points (adapted for screen size)
   function generateSolidDigitPoints(val: string) {
     let points: any[] = []
     
-    // Calculate adaptive font size based on screen dimensions
-    let baseFontSize = Math.min(p5.width, p5.height) * 0.4 // 40% of smaller dimension
-    let fontSize = baseFontSize
-    
+    // Use original fontSize=2400 with exact scaling factors
+    let fontSize = 2400
     if (val.length === 2) {
-      fontSize = baseFontSize * 0.7 // Reduce for double digits
+      fontSize = fontSize * 0.5
     } else if (val.length === 3) {
-      fontSize = baseFontSize * 0.5 // Further reduce for triple digits
+      fontSize = fontSize * 0.35
     }
     
     // Create off-screen graphics buffer (exactly like original)
@@ -209,20 +197,13 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Draw number in canvas center (exactly like original)
     pg.text(val, p5.width/2, p5.height/2)
     
-    // Optimized pixel scanning with minimal margin
+    // Scan pixels to find black areas (number shape) - exactly like original
     pg.loadPixels()
     let d = pg.pixelDensity()
-    let step = 10 // Balanced step for performance and accuracy
+    let step = 8 // Original step value for exact accuracy
     
-    // Minimal margin to ensure we capture the full number
-    let margin = 20
-    let startX = Math.max(margin, 0)
-    let endX = Math.min(p5.width - margin, p5.width)
-    let startY = Math.max(margin, 0)
-    let endY = Math.min(p5.height - margin, p5.height)
-    
-    for (let x = startX; x < endX; x += step) {
-      for (let y = startY; y < endY; y += step) {
+    for (let x = 0; x < p5.width; x += step) {
+      for (let y = 0; y < p5.height; y += step) {
         // Get pixel color
         let index = 4 * (d * y * p5.width * d + d * x)
         let r = pg.pixels[index]
