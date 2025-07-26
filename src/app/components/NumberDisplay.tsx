@@ -127,7 +127,7 @@ class CodeParticle {
 // Global font status variable to share between component and sketch
 let globalFontLoaded = false
 
-const sketch: Sketch<SketchProps> = (p5) => {
+const sketch: Sketch<any> = (p5) => {
   let particles: CodeParticle[] = []
   let digitPoints: any[] = []
   let forming = false
