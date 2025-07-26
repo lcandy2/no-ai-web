@@ -3,9 +3,18 @@
 import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 
-export default function QRCodeReport() {
+interface QRCodeReportProps {
+  showQRCode?: boolean
+}
+
+export default function QRCodeReport({ showQRCode = true }: QRCodeReportProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState('')
   const [currentUrl, setCurrentUrl] = useState('')
+
+  // 如果 showQRCode 为 false，直接不渲染
+  if (!showQRCode) {
+    return null
+  }
 
   useEffect(() => {
     // 获取当前完整URL
@@ -113,11 +122,11 @@ export default function QRCodeReport() {
           paddingInline: '10px',
           paddingBlock: '10px',
           borderRadius: '12px',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          // boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
           minWidth: '150px',
           textAlign: 'center',
           fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif',
-          backdropFilter: 'blur(10px)',
+          // backdropFilter: 'blur(10px)',
           border: '1px solid #eee',
           // border: '1px solid rgba(248, 103, 41, 0.2)'
         }}

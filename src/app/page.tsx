@@ -13,6 +13,7 @@ function HomeContent() {
   const [displayName, setDisplayName] = useState('')
   const [discussionMinutes, setDiscussionMinutes] = useState(72)
   const [discussionContent, setDiscussionContent] = useState('什么什么什么')
+  const [showQRCode, setShowQRCode] = useState(true)
 
   useEffect(() => {
     // Get hours from URL parameter or use default
@@ -44,6 +45,12 @@ function HomeContent() {
     if (contentParam) {
       setDiscussionContent(contentParam)
     }
+
+    // Get showQRCode from URL parameter
+    const qrCodeParam = searchParams.get('showQRCode')
+    if (qrCodeParam !== null) {
+      setShowQRCode(qrCodeParam !== 'false')
+    }
   }, [searchParams])
 
   useEffect(() => {
@@ -67,7 +74,7 @@ function HomeContent() {
       <BackgroundParticles showDebug={false} />
       
       {/* QR Code Report - Desktop Only */}
-      <QRCodeReport />
+      <QRCodeReport showQRCode={showQRCode} />
       
       {/* Scrollable Content */}
       <div style={{
