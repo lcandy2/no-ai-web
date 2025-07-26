@@ -52,7 +52,7 @@ export default function Home() {
       <div style={{
         position: 'relative',
         zIndex: 1,
-        minHeight: '200vh', // Make page scrollable
+        minHeight: '300vh', // Make page scrollable
         fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
       }}>
         {/* First Viewport - 100vh */}
@@ -195,6 +195,51 @@ export default function Home() {
             }}>
               相当于: 整整{Math.round(displayHours / 8)}个工作日……↓
             </div> */}
+          </div>
+        </div>
+
+        {/* Third Viewport - AI Discussion */}
+        <div style={{
+          position: 'relative',
+          width: '100vw',
+          minHeight: '100vh',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: '#374759',
+          zIndex: 2,
+          fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            maxWidth: '900px',
+            padding: '0 40px'
+          }}>
+            {/* Main text */}
+            <div style={{
+              fontSize: 'clamp(36px, 6vw, 72px)',
+              fontWeight: 'normal',
+              lineHeight: 1.3,
+              marginBottom: '40px'
+            }}>
+              你花了<span style={{
+                fontFamily: 'GoodfonT-NET-XS03, monospace',
+                fontWeight: 'bold',
+                color: '#F86729',
+                fontSize: '1.2em'
+              }}>{Math.round(displayHours * 60 / 8)}</span>分钟
+            </div>
+            
+            <div style={{
+              fontSize: 'clamp(28px, 5vw, 56px)',
+              fontWeight: 'normal',
+              lineHeight: 1.3,
+              color: '#666'
+            }}>
+              和AI探讨什么什么什么
+            </div>
           </div>
         </div>
       </div>
