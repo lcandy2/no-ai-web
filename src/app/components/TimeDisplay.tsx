@@ -113,6 +113,7 @@ class CodeParticle {
 
   display() {
     this.p5.push()
+    this.p5.textFont('GoodfonT-NET-XS03, monospace') // Use custom font with fallback
     this.p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
     this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
     this.p5.textSize(this.size)
@@ -131,13 +132,13 @@ const sketch: Sketch<SketchProps> = (p5) => {
     p5.createCanvas(p5.windowWidth, p5.windowHeight)
     p5.background(239, 248, 255)
     
-    // Create simple particle grid
+    // Create optimized particle grid
     initializeParticles()
     
     // Form the number after a short delay
     setTimeout(() => {
       formNumber(currentHour.toString())
-    }, 100)
+    }, 200)
   }
 
   p5.updateWithProps = (props: SketchProps) => {
@@ -147,29 +148,39 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
   }
 
-  // Initialize particle system (exactly like original)
+  // Initialize particle system (optimized for performance)
   function initializeParticles() {
     particles = []
     
-    // Create denser particle grid to ensure enough particles to fill large numbers (exactly like original)
-    let spacing = 25 // Reduce spacing to increase particle density (exactly like original)
+    // Optimized spacing for better performance while maintaining visual quality
+    let spacing = 35 // Increased spacing to reduce particle count
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
     
+    // Limit maximum particles for performance
+    let maxParticles = 800
+    let totalPossible = cols * rows
+    let skipRatio = totalPossible > maxParticles ? Math.ceil(totalPossible / maxParticles) : 1
+    
+    let count = 0
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        let x = i * spacing + p5.random(-5, 5)
-        let y = j * spacing + p5.random(-5, 5) + 60
-        
-        // Ensure particles are within screen bounds (exactly like original)
-        x = p5.constrain(x, 10, p5.width - 10)
-        y = p5.constrain(y, 70, p5.height - 10)
-        
-        particles.push(new CodeParticle(x, y, p5))
+        // Skip some particles if too many
+        if (count % skipRatio === 0) {
+          let x = i * spacing + p5.random(-5, 5)
+          let y = j * spacing + p5.random(-5, 5) + 60
+          
+          // Ensure particles are within screen bounds
+          x = p5.constrain(x, 10, p5.width - 10)
+          y = p5.constrain(y, 70, p5.height - 10)
+          
+          particles.push(new CodeParticle(x, y, p5))
+        }
+        count++
       }
     }
     
-    console.log('Created ' + particles.length + ' particles')
+    console.log('Created ' + particles.length + ' particles (optimized)')
   }
 
   // Generate solid digit points (exactly like original TimeTest)
@@ -196,18 +207,25 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Draw number in canvas center (exactly like original)
     pg.text(val, p5.width/2, p5.height/2)
     
-    // Scan pixels to find black areas (exactly like original algorithm)
+    // Optimized pixel scanning for better performance
     pg.loadPixels()
     let d = pg.pixelDensity()
-    let step = 8 // Same sampling step as original
+    let step = 12 // Larger step for better performance
     
-    for (let x = 0; x < p5.width; x += step) {
-      for (let y = 0; y < p5.height; y += step) {
-        // Get pixel color (exactly like original)
+    // Limit scan area to improve performance
+    let margin = 100
+    let startX = Math.max(margin, 0)
+    let endX = Math.min(p5.width - margin, p5.width)
+    let startY = Math.max(margin, 0)
+    let endY = Math.min(p5.height - margin, p5.height)
+    
+    for (let x = startX; x < endX; x += step) {
+      for (let y = startY; y < endY; y += step) {
+        // Get pixel color
         let index = 4 * (d * y * p5.width * d + d * x)
         let r = pg.pixels[index]
         
-        // If pixel is black or near black (number part) - exactly like original
+        // If pixel is black or near black (number part)
         if (r < 128) {
           points.push({
             x: x + p5.random(-2, 2),
@@ -346,6 +364,17 @@ export default function TimeDisplay() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    // Load custom font via CSS
+    const fontFace = new FontFace('GoodfonT-NET-XS03', 'url(/fonts/GoodfonT-NET-XS03.ttf)')
+    fontFace.load().then((loadedFont) => {
+      document.fonts.add(loadedFont)
+      console.log('CSS Font loaded successfully!')
+    }).catch((error) => {
+      console.log('CSS Font loading failed:', error)
+    })
+  }, [])
+
   return (
     <div style={{ 
       position: 'fixed', 
@@ -354,7 +383,8 @@ export default function TimeDisplay() {
       width: '100vw', 
       height: '100vh',
       backgroundColor: '#EFF8FF',
-      zIndex: 0
+      zIndex: 0,
+      fontFamily: 'GoodfonT-NET-XS03, monospace' // Apply custom font
     }}>
       <NextReactP5Wrapper sketch={sketch} currentHour={currentHour} />
     </div>
