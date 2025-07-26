@@ -60,12 +60,7 @@ export default function QRCodeReport() {
       position: 'fixed',
       top: '20px',
       right: '20px',
-      zIndex: 9999,
-      display: 'none', // 默认隐藏
-      // 只在桌面端显示
-      '@media (minWidth: 768px)': {
-        display: 'block'
-      }
+      zIndex: 9999
     }} className="desktop-only">
       {/* CSS样式 */}
       <style jsx>{`
