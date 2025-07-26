@@ -25,6 +25,11 @@ class CodeParticle {
   currentColor: any
   colorTransition: number
   p5: any
+  
+  // Performance optimization: cache computed values
+  cachedSinFlicker: number = 0
+  cachedSizeFlicker: number = 0
+  frameCounter: number = 0
 
   constructor(x: number, y: number, p5Instance: any) {
     this.p5 = p5Instance
@@ -91,20 +96,26 @@ class CodeParticle {
         this.lastCharChange = currentTime
       }
       
-      // Pre-calculate sin values but update every frame
-      let flicker = Math.sin(frameCount * this.flickerSpeed + this.flickerOffset)
-      this.opacity = 0.15 + flicker * 0.05 // Optimized: 0.1-0.2 range
+      // Optimize sin calculations with caching and reduced frequency
+      this.frameCounter++
+      if (this.frameCounter % 2 === 0) { // Update sin values every other frame
+        this.cachedSinFlicker = Math.sin(frameCount * this.flickerSpeed + this.flickerOffset)
+        this.cachedSizeFlicker = Math.sin(frameCount * 0.05 + this.flickerOffset)
+      }
       
-      let sizeFlicker = Math.sin(frameCount * 0.05 + this.flickerOffset)
-      this.size = this.baseSize + sizeFlicker * 2
+      this.opacity = 0.15 + this.cachedSinFlicker * 0.05 // Use cached value
+      this.size = this.baseSize + this.cachedSizeFlicker * 2
       
       if (this.colorTransition > 0.05) {
         this.colorTransition *= 0.95 // Faster decay
       }
     } else {
-      // Number particles: normal update rate but optimized
-      let flicker = Math.sin(frameCount * 0.02 + this.flickerOffset)
-      this.opacity = 0.7 + flicker * 0.1 // Optimized: 0.6-0.8 range
+      // Number particles: optimized with cached calculations
+      this.frameCounter++
+      if (this.frameCounter % 2 === 0) {
+        this.cachedSinFlicker = Math.sin(frameCount * 0.02 + this.flickerOffset)
+      }
+      this.opacity = 0.7 + this.cachedSinFlicker * 0.1 // Use cached value
       
       this.size += (this.baseSize * 0.85 - this.size) * 0.1 // Simplified lerp
       
@@ -129,13 +140,10 @@ class CodeParticle {
     // Skip only extremely transparent particles
     if (this.opacity < 0.02) return
     
-    this.p5.push()
-    this.p5.textFont('GoodfonT-NET-XS03, monospace')
+    // Optimized rendering without push/pop for better performance
     this.p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
-    this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
     this.p5.textSize(this.size)
     this.p5.text(this.char, this.pos.x, this.pos.y)
-    this.p5.pop()
   }
 }
 
@@ -204,25 +212,19 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Balanced particle limit for background coverage
-    console.log('screenArea', screenArea, Math.floor(screenArea / 220))
-    let maxParticles = Math.min(1800, Math.max(350, Math.floor(screenArea / 220)))  // Moderate reduction
-    let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
+    // Create ALL particles - no limits for full background coverage
+    console.log('screenArea', screenArea, 'Total particles will be:', totalParticles)
     
-    let count = 0
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        if (count % skipRatio === 0) {
-          let x = i * spacing + p5.random(-5, 5)
-          let y = j * spacing + p5.random(-5, 5)
-          
-          // Ensure particles are within screen bounds from top to bottom
-          x = p5.constrain(x, 10, p5.width - 10)
-          y = p5.constrain(y, 10, p5.height - 10)
-          
-          particles.push(new CodeParticle(x, y, p5))
-        }
-        count++
+        let x = i * spacing + p5.random(-5, 5)
+        let y = j * spacing + p5.random(-5, 5)
+        
+        // Ensure particles are within screen bounds from top to bottom
+        x = p5.constrain(x, 10, p5.width - 10)
+        y = p5.constrain(y, 10, p5.height - 10)
+        
+        particles.push(new CodeParticle(x, y, p5))
       }
     }
     
@@ -446,26 +448,37 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let frameStart = p5.millis()
     p5.background(239, 248, 255)
     
+    // Set common rendering states once to avoid repetition
+    p5.textFont('GoodfonT-NET-XS03, monospace')
+    p5.textAlign(p5.CENTER, p5.CENTER)
+    
     // Display vertical lines every frame for consistent background
     for (let line of verticalLines) {
       let flicker = Math.sin(p5.frameCount * line.flickerSpeed + line.flickerOffset)
       let opacity = line.opacity * 0.75 + flicker * line.opacity * 0.25
       
       if (opacity > 0.03) { // Lower threshold
-        p5.push()
-        p5.textFont('GoodfonT-NET-XS03, monospace')
         p5.fill(55, 71, 89, opacity * 255)
-        p5.textAlign(p5.CENTER, p5.CENTER)
         p5.textSize(line.baseSize)
         p5.text(line.char, line.x, line.y)
-        p5.pop()
       }
     }
     
-    // Batch particle updates and rendering
+    // Intelligent particle updates: alternate between background particles
     for (let i = 0; i < particles.length; i++) {
-      particles[i].update(forming)
-      particles[i].display()
+      let particle = particles[i]
+      
+      // Background particles update every other frame based on index
+      if (!forming || !particle.isInShape) {
+        if (i % 2 === p5.frameCount % 2) { // Alternate which half updates each frame
+          particle.update(forming)
+        }
+      } else {
+        // Number particles always update for smooth animation
+        particle.update(forming)
+      }
+      
+      particle.display()
     }
     
     // Lightweight performance monitoring
