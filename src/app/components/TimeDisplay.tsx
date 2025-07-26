@@ -183,16 +183,18 @@ const sketch: Sketch<SketchProps> = (p5) => {
     console.log('Created ' + particles.length + ' particles (optimized)')
   }
 
-  // Generate solid digit points (exactly like original TimeTest)
+  // Generate solid digit points (adapted for screen size)
   function generateSolidDigitPoints(val: string) {
     let points: any[] = []
     
-    // Adjust font size based on number length (exactly like original)
-    let fontSize = 2400 // Original size
+    // Calculate adaptive font size based on screen dimensions
+    let baseFontSize = Math.min(p5.width, p5.height) * 0.4 // 40% of smaller dimension
+    let fontSize = baseFontSize
+    
     if (val.length === 2) {
-      fontSize = 2400 * 0.5
+      fontSize = baseFontSize * 0.7 // Reduce for double digits
     } else if (val.length === 3) {
-      fontSize = 2400 * 0.35
+      fontSize = baseFontSize * 0.5 // Further reduce for triple digits
     }
     
     // Create off-screen graphics buffer (exactly like original)
@@ -207,13 +209,13 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Draw number in canvas center (exactly like original)
     pg.text(val, p5.width/2, p5.height/2)
     
-    // Optimized pixel scanning for better performance
+    // Optimized pixel scanning with minimal margin
     pg.loadPixels()
     let d = pg.pixelDensity()
-    let step = 12 // Larger step for better performance
+    let step = 10 // Balanced step for performance and accuracy
     
-    // Limit scan area to improve performance
-    let margin = 100
+    // Minimal margin to ensure we capture the full number
+    let margin = 20
     let startX = Math.max(margin, 0)
     let endX = Math.min(p5.width - margin, p5.width)
     let startY = Math.max(margin, 0)
@@ -234,6 +236,8 @@ const sketch: Sketch<SketchProps> = (p5) => {
         }
       }
     }
+    
+    console.log('Font size used:', Math.round(fontSize), 'Screen:', p5.width + 'x' + p5.height)
     
     pg.remove() // Clean up temporary canvas
     return points
