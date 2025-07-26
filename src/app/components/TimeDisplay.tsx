@@ -41,7 +41,7 @@ class CodeParticle {
     
     this.baseSize = 30
     this.size = this.baseSize
-    this.opacity = 0.2 // Slightly reduced initial opacity
+    this.opacity = 0.15 // Initial opacity - will be adjusted based on particle role
     this.isInShape = false
     this.hasTarget = false
     
@@ -84,15 +84,15 @@ class CodeParticle {
     let flickerInterval = 1000 / (this.flickerSpeed * 50)
     
     if (!forming || !this.isInShape) {
-      // Background particles: continuous flicker
+      // Background particles: continuous flicker with low opacity
       if (currentTime - this.lastCharChange > flickerInterval) {
         this.char = this.p5.random(this.chars)
         this.lastCharChange = currentTime
       }
       
-      // Reduced opacity fluctuation with sine wave for more subtle effect
+      // Background particles: low opacity fluctuation between 0.1-0.2 (10-20%)
       let flicker = this.p5.sin(this.p5.frameCount * this.flickerSpeed + this.flickerOffset)
-      this.opacity = this.p5.map(flicker, -1, 1, 0, 0.6) // 0-15% transparency (reduced from 20%)
+      this.opacity = this.p5.map(flicker, -1, 1, 0.1, 0.2) // Background: 10-20% opacity
       
       // Size breathing effect
       this.size = this.baseSize + this.p5.sin(this.p5.frameCount * 0.05 + this.flickerOffset) * 2
@@ -100,9 +100,9 @@ class CodeParticle {
       // Color transition back to gray
       this.colorTransition = this.p5.lerp(this.colorTransition, 0, 0.05)
     } else {
-      // Number shape particles: more stable with reduced opacity
+      // Number shape particles: higher opacity for better visibility
       let flicker = this.p5.sin(this.p5.frameCount * 0.02 + this.flickerOffset)
-      this.opacity = this.p5.map(flicker, -1, 1, 0.4, 0.6) // 10-15% transparency (reduced from 15-20%)
+      this.opacity = this.p5.map(flicker, -1, 1, 0.6, 0.8) // Number particles: 60-80% opacity (much higher)
       this.size = this.p5.lerp(this.size, this.baseSize * 0.85, 0.1)
       
       // Reduced flicker frequency for number particles
