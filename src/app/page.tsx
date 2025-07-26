@@ -127,23 +127,27 @@ export default function Home() {
           color: '#374759',
           zIndex: 2
         }}>
+          {/* Main comparison section - full width for left alignment */}
+          <div style={{
+            width: '100%',
+            paddingLeft: '40px',
+            marginBottom: '20px'
+          }}>
+            <div style={{
+              fontSize: 'clamp(48px, 8vw, 96px)',
+              fontWeight: 'normal',
+              textAlign: 'left',
+              fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
+            }}>
+              相当于
+            </div>
+          </div>
+
           <div style={{
             maxWidth: '800px',
             margin: '0 auto',
             lineHeight: 1.6
           }}>
-            {/* Main comparison section */}
-            <div style={{
-              fontSize: 'clamp(48px, 8vw, 96px)',
-              fontWeight: 'normal',
-              marginBottom: '20px',
-              textAlign: 'left',
-              marginLeft: '0',
-              fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
-            }}>
-              相当于
-            </div>
-
             {/* Statistics list using StatItem components - calculated from displayHours */}
             <div style={{
               display: 'flex',
