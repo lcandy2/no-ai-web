@@ -211,15 +211,15 @@ const sketch: Sketch<SketchProps> = (p5) => {
     pg.loadPixels()
     let d = pg.pixelDensity()
     
-    // Balanced step sizes for adequate detail while maintaining performance
-    let step = 12 // Balanced base step
+    // Smaller step sizes for more dense particle coverage
+    let step = 8 // Reduced from 12 to 8 for more particles
     let screenArea = p5.width * p5.height
     if (screenArea > 2000000) {
-      step = 18 // Large screens: bigger steps for performance
+      step = 12 // Large screens: reduced from 18 to 12
     } else if (screenArea > 1000000) {
-      step = 15 // Medium-large screens
+      step = 10 // Medium-large screens: reduced from 15 to 10
     } else if (screenArea < 400000) {
-      step = 10 // Small screens: smaller steps for detail
+      step = 6 // Small screens: reduced from 10 to 6 for more detail
     }
     
     for (let x = 0; x < p5.width; x += step) {
@@ -275,7 +275,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
   // Assign particles to target points (exactly like original TimeDisplay)
   function assignTargetsEvenly() {
     // Smart particle management: create additional particles if needed, but with limits
-    let targetParticleCount = Math.min(digitPoints.length, 800) // Same limit as original
+    let targetParticleCount = Math.min(digitPoints.length, 1200) // Increased limit for more particles
     
     // Create additional particles if we don't have enough (exactly like original)
     while (particles.length < targetParticleCount) {
