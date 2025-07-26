@@ -178,29 +178,27 @@ const sketch: Sketch<SketchProps> = (p5) => {
       return
     }
     
-    // Slightly smaller spacing for more particles and better visual density
-    let baseSpacing = 35
+    // Smaller spacing for dense background particle coverage like original TimeTest
+    let baseSpacing = 25
     let screenArea = p5.width * p5.height
     let spacing = baseSpacing
     
-    // Balanced spacing to maintain visual density while keeping good performance
+    // Maintain dense particle coverage for background effect
     if (screenArea > 2000000) { // Very large screens (>2M pixels)
-      spacing = baseSpacing * 1.8
+      spacing = baseSpacing * 1.3  // Less aggressive spacing to keep more particles
     } else if (screenArea > 1000000) { // Large screens (>1M pixels) 
-      spacing = baseSpacing * 1.4
-    } else if (screenArea > 600000) { // Medium screens
-      spacing = baseSpacing * 1.2
+      spacing = baseSpacing * 1.1
     } else {
-      spacing = baseSpacing
+      spacing = baseSpacing  // Keep dense spacing for smaller screens
     }
     
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Increased particle limit for better visual density
-    console.log('screenArea', screenArea, Math.floor(screenArea / 250))
-    let maxParticles = Math.min(1200, Math.max(250, Math.floor(screenArea / 250)))
+    // Increase particle limit for full background coverage like original TimeTest
+    console.log('screenArea', screenArea, Math.floor(screenArea / 200))
+    let maxParticles = Math.min(2000, Math.max(400, Math.floor(screenArea / 200)))  // More particles for background
     let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
     
     let count = 0
@@ -360,7 +358,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
   // Evenly distribute particles to target points (performance balanced)
   function assignTargetsEvenly() {
     // Smart particle management: create additional particles if needed, but with limits
-    let targetParticleCount = Math.min(digitPoints.length, 600) // Cap at 600 for performance
+    let targetParticleCount = Math.min(digitPoints.length, 800) // Increase cap for more particles
     
     // Create additional particles if we don't have enough
     while (particles.length < targetParticleCount) {
@@ -377,10 +375,10 @@ const sketch: Sketch<SketchProps> = (p5) => {
     
     // Assign particles to digit points
     if (particles.length >= digitPoints.length) {
-      // Shuffle particle array to ensure random assignment (exactly like original)
+      // Shuffle particle array to ensure random assignment
       let shuffledParticles = shuffle(particles.slice())
       
-      // Assign first N particles to number shape (exactly like original)
+      // Assign particles to number shape
       for (let i = 0; i < digitPoints.length; i++) {
         shuffledParticles[i].setTargetPoint(
           digitPoints[i].x,
@@ -389,23 +387,17 @@ const sketch: Sketch<SketchProps> = (p5) => {
         )
       }
       
-      // Remaining particles evenly distributed across screen (exactly like original)
+      // Keep remaining particles as background - spread them across the screen with original positions
       let remainingCount = shuffledParticles.length - digitPoints.length
-      let cols = Math.ceil(Math.sqrt(remainingCount))
-      let rows = Math.ceil(remainingCount / cols)
-      let index = digitPoints.length
+      console.log(`Background particles: ${remainingCount} of ${particles.length} total`)
       
-      for (let i = 0; i < cols && index < shuffledParticles.length; i++) {
-        for (let j = 0; j < rows && index < shuffledParticles.length; j++) {
-          let x = p5.map(i, 0, cols-1, 50, p5.width-50)
-          let y = p5.map(j, 0, rows-1, 100, p5.height-50)
-          shuffledParticles[index].setTargetPoint(
-            x + p5.random(-20, 20),
-            y + p5.random(-20, 20),
-            false
-          )
-          index++
-        }
+      // For background particles, keep them at their current positions but mark as background
+      for (let i = digitPoints.length; i < shuffledParticles.length; i++) {
+        shuffledParticles[i].setTargetPoint(
+          shuffledParticles[i].pos.x + p5.random(-10, 10),
+          shuffledParticles[i].pos.y + p5.random(-10, 10),
+          false  // This marks them as background particles
+        )
       }
     } else {
       // If we have fewer particles than target points, assign multiple points to some particles
