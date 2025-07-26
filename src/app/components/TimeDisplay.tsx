@@ -158,7 +158,8 @@ const sketch: Sketch<SketchProps> = (p5) => {
   p5.updateWithProps = (props: SketchProps) => {
     if (props.displayNumber !== undefined && props.displayNumber !== displayNumber) {
       displayNumber = props.displayNumber
-      formNumber(displayNumber.toString())
+      // Add delay to ensure P5 is fully initialized
+      setTimeout(() => formNumber(displayNumber.toString()), 100)
     }
     
     if (props.showDebug !== undefined) {
@@ -219,6 +220,12 @@ const sketch: Sketch<SketchProps> = (p5) => {
   function addVerticalLines() {
     verticalLines = []
     
+    // Safety check: ensure P5 is properly initialized
+    if (!p5.width || !p5.height) {
+      console.warn('P5 canvas not yet initialized, skipping vertical lines')
+      return
+    }
+    
     // Create sparse vertical line characters distributed across screen
     let lineChars = ['|', '│', '┃', '丨', '︱', '︳']
     let numLines = Math.floor((p5.width * p5.height) / 50000) // Density based on screen size
@@ -245,6 +252,12 @@ const sketch: Sketch<SketchProps> = (p5) => {
   // Generate solid digit points with responsive font sizing
   function generateSolidDigitPoints(val: string) {
     let points: any[] = []
+    
+    // Safety check: ensure P5 is properly initialized
+    if (!p5.width || !p5.height) {
+      console.warn('P5 canvas not yet initialized, skipping digit point generation')
+      return points
+    }
     
     // Smaller responsive font sizing for more compact display
     let baseFontSize = 1800 // Reduced from 2400 to make numbers smaller
@@ -309,11 +322,18 @@ const sketch: Sketch<SketchProps> = (p5) => {
     return points
   }
 
-  // Form number shape (exactly like original)
+  // Form number shape with safety checks
   function formNumber(val: string) {
-    // Validate input (exactly like original)
+    // Validate input
     if (!val || val.length === 0 || isNaN(Number(val))) {
       console.log('Please enter a valid number')
+      return
+    }
+    
+    // Safety check: ensure P5 is properly initialized
+    if (!p5.width || !p5.height) {
+      console.warn('P5 canvas not yet initialized, retrying in 100ms')
+      setTimeout(() => formNumber(val), 100)
       return
     }
     
