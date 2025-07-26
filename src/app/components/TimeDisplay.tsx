@@ -6,6 +6,7 @@ import type { Sketch } from "@p5-wrapper/react"
 
 interface SketchProps {
   currentHour: number
+  showDebug?: boolean
 }
 
 class CodeParticle {
@@ -135,6 +136,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
   let digitPoints: any[] = []
   let forming = false
   let currentHour = new Date().getHours()
+  let showDebug = false
 
   p5.setup = () => {
     p5.createCanvas(p5.windowWidth, p5.windowHeight)
@@ -153,6 +155,10 @@ const sketch: Sketch<SketchProps> = (p5) => {
     if (props.currentHour !== currentHour) {
       currentHour = props.currentHour
       formNumber(currentHour.toString())
+    }
+    
+    if (props.showDebug !== undefined) {
+      showDebug = props.showDebug
     }
   }
 
@@ -395,23 +401,25 @@ const sketch: Sketch<SketchProps> = (p5) => {
     
     let avgFrameTime = frameTimeHistory.reduce((a, b) => a + b, 0) / frameTimeHistory.length
     
-    // Enhanced debug info with performance metrics
-    p5.push()
-    p5.fill(55, 71, 89, 150)
-    p5.textAlign(p5.LEFT, p5.TOP)
-    p5.textSize(Math.max(12, Math.min(16, p5.width / 100))) // Responsive text size
-    let lineHeight = p5.textSize() * 1.2
-    let y = 20
-    
-    p5.text('Hour: ' + currentHour, 20, y); y += lineHeight
-    p5.text('Particles: ' + particles.length, 20, y); y += lineHeight
-    p5.text('FPS: ' + Math.round(p5.frameRate()), 20, y); y += lineHeight
-    p5.text('Frame: ' + Math.round(avgFrameTime) + 'ms', 20, y); y += lineHeight
-    if (forming) {
-      p5.text('Points: ' + digitPoints.length, 20, y); y += lineHeight
+    // Enhanced debug info with performance metrics (controllable)
+    if (showDebug) {
+      p5.push()
+      p5.fill(55, 71, 89, 150)
+      p5.textAlign(p5.LEFT, p5.TOP)
+      p5.textSize(Math.max(12, Math.min(16, p5.width / 100))) // Responsive text size
+      let lineHeight = p5.textSize() * 1.2
+      let y = 20
+      
+      p5.text('Hour: ' + currentHour, 20, y); y += lineHeight
+      p5.text('Particles: ' + particles.length, 20, y); y += lineHeight
+      p5.text('FPS: ' + Math.round(p5.frameRate()), 20, y); y += lineHeight
+      p5.text('Frame: ' + Math.round(avgFrameTime) + 'ms', 20, y); y += lineHeight
+      if (forming) {
+        p5.text('Points: ' + digitPoints.length, 20, y); y += lineHeight
+      }
+      p5.text('Screen: ' + p5.width + 'x' + p5.height, 20, y)
+      p5.pop()
     }
-    p5.text('Screen: ' + p5.width + 'x' + p5.height, 20, y)
-    p5.pop()
   }
 
   p5.windowResized = () => {
@@ -427,7 +435,11 @@ const sketch: Sketch<SketchProps> = (p5) => {
   }
 }
 
-export default function TimeDisplay() {
+interface TimeDisplayProps {
+  showDebug?: boolean
+}
+
+export default function TimeDisplay({ showDebug = false }: TimeDisplayProps) {
   const [currentHour, setCurrentHour] = useState(new Date().getHours())
 
   useEffect(() => {
@@ -463,7 +475,7 @@ export default function TimeDisplay() {
       zIndex: 0,
       fontFamily: 'GoodfonT-NET-XS03, monospace' // Apply custom font
     }}>
-      <NextReactP5Wrapper sketch={sketch} currentHour={currentHour} />
+      <NextReactP5Wrapper sketch={sketch} currentHour={currentHour} showDebug={showDebug} />
     </div>
   )
 }

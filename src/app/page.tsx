@@ -3,5 +3,6 @@
 import TimeDisplay from './components/TimeDisplay'
 
 export default function Home() {
-  return <TimeDisplay />
+  // Set showDebug to true to see debug info, false to hide it
+  return <TimeDisplay showDebug={false} />
 }
