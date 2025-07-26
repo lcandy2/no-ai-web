@@ -74,7 +74,7 @@ function HomeContent() {
       <BackgroundParticles showDebug={false} />
       
       {/* QR Code Report - Desktop Only */}
-      <QRCodeReport showQRCode={showQRCode} />
+      {showQRCode && <QRCodeReport />}
       
       {/* Scrollable Content */}
       <div style={{

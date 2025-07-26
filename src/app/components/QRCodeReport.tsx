@@ -3,18 +3,9 @@
 import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 
-interface QRCodeReportProps {
-  showQRCode?: boolean
-}
-
-export default function QRCodeReport({ showQRCode = true }: QRCodeReportProps) {
+export default function QRCodeReport() {
   const [qrCodeUrl, setQrCodeUrl] = useState('')
   const [currentUrl, setCurrentUrl] = useState('')
-
-  // 如果 showQRCode 为 false，直接不渲染
-  if (!showQRCode) {
-    return null
-  }
 
   useEffect(() => {
     // 获取当前完整URL
