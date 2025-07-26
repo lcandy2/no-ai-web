@@ -429,13 +429,10 @@ export default function NumberDisplay({ displayNumber = 49, showDebug = false }:
 
   return (
     <div style={{ 
-      position: 'absolute', 
-      top: 0, 
-      left: 0, 
+      position: 'relative', 
       width: '100vw', 
       height: '100vh',
       pointerEvents: 'none', // Allow interactions to pass through
-      zIndex: 1,
       fontFamily: 'GoodfonT-NET-XS03, monospace'
     }}>
       <NextReactP5Wrapper sketch={sketch} displayNumber={displayNumber} showDebug={showDebug} />

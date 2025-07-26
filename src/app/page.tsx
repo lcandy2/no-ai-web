@@ -7,7 +7,6 @@ import StatItem, { Number } from './components/StatItem'
 
 export default function Home() {
   const [currentHour, setCurrentHour] = useState(new Date().getHours())
-  const [showNumberDisplay, setShowNumberDisplay] = useState(true)
 
   useEffect(() => {
     const updateHour = () => {
@@ -18,18 +17,6 @@ export default function Home() {
     const interval = setInterval(updateHour, 60000)
 
     return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY
-      const viewportHeight = window.innerHeight
-      // Hide NumberDisplay when scrolled past first viewport
-      setShowNumberDisplay(scrollY < viewportHeight * 0.8)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
@@ -52,25 +39,10 @@ export default function Home() {
       {/* Fixed Background Particles */}
       <BackgroundParticles showDebug={false} />
       
-      {/* Fixed Number Display - only shows in first viewport */}
-      {showNumberDisplay && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 1,
-          pointerEvents: 'none'
-        }}>
-          <NumberDisplay displayNumber={49} showDebug={false} />
-        </div>
-      )}
-      
       {/* Scrollable Content */}
       <div style={{
         position: 'relative',
-        zIndex: 2,
+        zIndex: 1,
         minHeight: '200vh', // Make page scrollable
         fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
       }}>
@@ -84,6 +56,8 @@ export default function Home() {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
+          {/* Number Display for 49 - should scroll with content */}
+          <NumberDisplay displayNumber={23} showDebug={false} />
           
           {/* Floating text overlay */}
           <div style={{
