@@ -67,60 +67,65 @@ class CodeParticle {
   }
 
   update(forming: boolean) {
-    // Optimized movement with fewer calculations
-    if (forming && this.hasTarget && this.isInShape) {
+    // Movement towards target (number formation)
+    if (forming && this.hasTarget) {
       let dx = this.target.x - this.pos.x
       let dy = this.target.y - this.pos.y
-      let d = Math.sqrt(dx * dx + dy * dy) // Faster than p5.dist
+      let d = Math.sqrt(dx * dx + dy * dy)
       
       if (d < 5) {
         this.pos.x = this.target.x
         this.pos.y = this.target.y
       } else {
-        // Faster animation speeds
-        let speed = d > 200 ? 0.4 : 0.15 + (d / 200) * 0.25 // Much faster movement
+        // Faster animation speeds for number formation
+        let speed = d > 200 ? 0.4 : 0.15 + (d / 200) * 0.25
         this.pos.x += dx * speed
         this.pos.y += dy * speed
       }
     }
 
+    // Only number particle behavior (no background particle logic)
+    let frameCount = this.p5.frameCount
+    
     // Number particles: optimized with cached calculations
-    if (forming && this.isInShape) {
-      this.frameCounter++
-      if (this.frameCounter % 2 === 0) {
-        this.cachedSinFlicker = Math.sin(this.p5.frameCount * 0.02 + this.flickerOffset)
-      }
-      this.opacity = 0.7 + this.cachedSinFlicker * 0.1 // Use cached value
-      
-      this.size += (this.baseSize * 0.85 - this.size) * 0.1 // Simplified lerp
-      
-      if (Math.random() < 0.002) { // Slightly less frequent
-        this.char = this.p5.random(this.chars)
-      }
-      
-      if (this.colorTransition < 0.95) {
-        this.colorTransition += (1 - this.colorTransition) * 0.08
-      }
-      
-      // Optimized color calculation
-      if (this.colorTransition > 0.01) {
-        this.currentColor.r = 55 + (248 - 55) * this.colorTransition
-        this.currentColor.g = 71 + (103 - 71) * this.colorTransition
-        this.currentColor.b = 89 + (41 - 89) * this.colorTransition
-      }
+    this.frameCounter++
+    if (this.frameCounter % 2 === 0) {
+      this.cachedSinFlicker = Math.sin(frameCount * 0.02 + this.flickerOffset)
+    }
+    this.opacity = 0.7 + this.cachedSinFlicker * 0.1
+    
+    this.size += (this.baseSize * 0.85 - this.size) * 0.1
+    
+    if (Math.random() < 0.002) {
+      this.char = this.p5.random(this.chars)
+    }
+    
+    // Color transition to orange for number particles
+    if (this.colorTransition < 0.95) {
+      this.colorTransition += (1 - this.colorTransition) * 0.08
+    }
+    
+    // Color calculation for orange transition
+    if (this.colorTransition > 0.01) {
+      this.currentColor.r = 55 + (248 - 55) * this.colorTransition
+      this.currentColor.g = 71 + (103 - 71) * this.colorTransition
+      this.currentColor.b = 89 + (41 - 89) * this.colorTransition
     }
   }
 
   display() {
-    // Only display if this is a number particle with significant opacity
-    if (this.isInShape && this.opacity > 0.1) {
-      // Optimized rendering without push/pop for better performance
-      this.p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
-      this.p5.textSize(this.size)
-      this.p5.text(this.char, this.pos.x, this.pos.y)
-    }
+    // Skip only extremely transparent particles
+    if (this.opacity < 0.02) return
+    
+    // Optimized rendering without push/pop for better performance
+    this.p5.fill(this.currentColor.r, this.currentColor.g, this.currentColor.b, this.opacity * 255)
+    this.p5.textSize(this.size)
+    this.p5.text(this.char, this.pos.x, this.pos.y)
   }
 }
+
+// Global font status variable to share between component and sketch
+let globalFontLoaded = false
 
 const sketch: Sketch<SketchProps> = (p5) => {
   let particles: CodeParticle[] = []
@@ -134,7 +139,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
     
     // Use setTimeout to ensure canvas is fully initialized before creating particles
     setTimeout(() => {
-      // Form the number immediately
+      // Directly form the number - no background particles needed
       formNumber(displayNumber.toString())
     }, 100)
   }
@@ -178,6 +183,13 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Create off-screen graphics buffer (exactly like original)
     let pg = p5.createGraphics(p5.width, p5.height)
     pg.background(239, 248, 255) // Same background as original
+    
+    // Set font with fallback (same as original implementation)
+    if (globalFontLoaded) {
+      pg.textFont('GoodfonT-NET-XS03')
+    } else {
+      pg.textFont('Arial Black') // Use bold font as fallback
+    }
     
     pg.fill(55, 71, 89) // #374759 - same as original
     pg.textAlign(p5.CENTER, p5.CENTER)
@@ -252,24 +264,28 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
   }
 
-  // Create particles and assign them to target points
+  // Create particles specifically for number formation (simplified)
   function assignTargetsEvenly() {
-    // Create particles specifically for the number formation
+    // Clear any existing particles
     particles = []
     
-    // Create enough particles for all digit points
+    // Create exactly the number of particles needed for the digit points
+    // Start them from random positions and set them to converge to digit points
     for (let i = 0; i < digitPoints.length; i++) {
-      // Start particles from random positions
-      let particle = new CodeParticle(p5.random(p5.width), p5.random(p5.height), p5)
+      // Start particles from random positions across the screen
+      let startX = p5.random(p5.width)
+      let startY = p5.random(p5.height)
+      
+      let particle = new CodeParticle(startX, startY, p5)
       particle.setTargetPoint(
         digitPoints[i].x,
         digitPoints[i].y,
-        true
+        true  // All particles are for number shape
       )
       particles.push(particle)
     }
     
-    console.log(`NumberDisplay - Created ${particles.length} particles for ${digitPoints.length} target points`)
+    console.log(`NumberDisplay - Created ${particles.length} particles to form number from random positions`)
   }
 
   // Helper function: shuffle array (exactly like original)
@@ -293,7 +309,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
     p5.textFont('GoodfonT-NET-XS03, monospace')
     p5.textAlign(p5.CENTER, p5.CENTER)
     
-    // Update and display number particles
+    // Update and display all number particles (no background particles)
     for (let i = 0; i < particles.length; i++) {
       let particle = particles[i]
       particle.update(forming)
@@ -347,12 +363,14 @@ interface NumberDisplayProps {
 
 export default function NumberDisplay({ displayNumber = 49, showDebug = false }: NumberDisplayProps) {
   useEffect(() => {
-    // Load custom font via CSS
+    // Load custom font via CSS and update font status
     const fontFace = new FontFace('GoodfonT-NET-XS03', 'url(/fonts/GoodfonT-NET-XS03.ttf)')
     fontFace.load().then((loadedFont) => {
       document.fonts.add(loadedFont)
+      globalFontLoaded = true // Update the global font status
       console.log('NumberDisplay - CSS Font loaded successfully!')
     }).catch((error) => {
+      globalFontLoaded = false
       console.log('NumberDisplay - CSS Font loading failed:', error)
     })
   }, [])
