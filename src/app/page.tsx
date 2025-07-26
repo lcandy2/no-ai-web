@@ -148,8 +148,8 @@ export default function Home() {
               display: 'flex',
               flexDirection: 'column'
             }}>
-              <StatItem highlight={true}>
-                整整<Number highlight={true}>{Math.round(displayHours / 8)}</Number>个标准工作日
+              <StatItem>
+                整整<Number>{Math.round(displayHours / 8)}</Number>个标准工作日
               </StatItem>
 
               <StatItem>
