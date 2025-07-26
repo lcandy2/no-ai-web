@@ -59,7 +59,7 @@ export default function Home() {
           position: 'absolute',
           top: '15%',
           left: '8%',
-          fontSize: 'clamp(24px, 4vw, 48px)',
+          fontSize: 'clamp(36px, 6vw, 72px)',
           fontWeight: 'normal',
           lineHeight: 1.2,
           writingMode: 'horizontal-tb',
@@ -73,7 +73,7 @@ export default function Home() {
           position: 'absolute',
           bottom: '15%',
           right: '8%',
-          fontSize: 'clamp(24px, 4vw, 48px)',
+          fontSize: 'clamp(36px, 6vw, 72px)',
           fontWeight: 'normal',
           lineHeight: 1.2,
           textAlign: 'right'
