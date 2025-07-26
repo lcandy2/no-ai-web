@@ -54,7 +54,7 @@ export default function Home() {
         color: '#374759',
         textAlign: 'center'
       }}>
-        {/* Top text */}
+        {/* Top text - left aligned */}
         <div style={{
           position: 'absolute',
           top: '15%',
@@ -62,7 +62,8 @@ export default function Home() {
           fontSize: 'clamp(24px, 4vw, 48px)',
           fontWeight: 'normal',
           lineHeight: 1.2,
-          writingMode: 'horizontal-tb'
+          writingMode: 'horizontal-tb',
+          textAlign: 'left'
         }}>
           在过去7天<br />你有
         </div>

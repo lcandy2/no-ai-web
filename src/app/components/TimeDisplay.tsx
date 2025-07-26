@@ -215,10 +215,10 @@ const sketch: Sketch<SketchProps> = (p5) => {
   function generateSolidDigitPoints(val: string) {
     let points: any[] = []
     
-    // Responsive font sizing: maintain original proportions but adapt to screen
-    let baseFontSize = 2400
+    // Smaller responsive font sizing for more compact display
+    let baseFontSize = 1800 // Reduced from 2400 to make numbers smaller
     let screenScaleFactor = Math.min(p5.width / 1920, p5.height / 1080) // Scale based on 1920x1080 reference
-    screenScaleFactor = Math.max(0.3, Math.min(1.5, screenScaleFactor)) // Clamp between 30% and 150%
+    screenScaleFactor = Math.max(0.25, Math.min(1.2, screenScaleFactor)) // Reduced max scale from 1.5 to 1.2
     
     let fontSize = baseFontSize * screenScaleFactor
     
