@@ -36,7 +36,7 @@ export default function Home() {
       minHeight: '100vh'
     }}>
       {/* Fixed Background Particles */}
-      <BackgroundParticles showDebug={true} />
+      <BackgroundParticles showDebug={false} />
       
       {/* Scrollable Content */}
       <div style={{
@@ -56,7 +56,7 @@ export default function Home() {
           alignItems: 'center'
         }}>
           {/* Number Display for 49 */}
-          <NumberDisplay displayNumber={49} showDebug={true} />
+          <NumberDisplay displayNumber={49} showDebug={false} />
           
           {/* Floating text overlay */}
           <div style={{

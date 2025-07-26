@@ -416,7 +416,7 @@ interface NumberDisplayProps {
 export default function NumberDisplay({ displayNumber = 49, showDebug = false }: NumberDisplayProps) {
   useEffect(() => {
     // Load custom font via CSS and update font status
-    const fontFace = new FontFace('GoodfonT-NET-XS03', 'url(/fonts/GoodfonT-NET-XS03.ttf)')
+    const fontFace = new FontFace('GoodfonT-NET-XS03', 'url(/fonts/GoodfonT-NET-XS03.woff2)')
     fontFace.load().then((loadedFont) => {
       document.fonts.add(loadedFont)
       globalFontLoaded = true // Update the global font status

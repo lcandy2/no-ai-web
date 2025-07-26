@@ -263,7 +263,7 @@ interface BackgroundParticlesProps {
 export default function BackgroundParticles({ showDebug = false }: BackgroundParticlesProps) {
   useEffect(() => {
     // Load custom font via CSS
-    const fontFace = new FontFace('GoodfonT-NET-XS03', 'url(/fonts/GoodfonT-NET-XS03.ttf)')
+    const fontFace = new FontFace('GoodfonT-NET-XS03', 'url(/fonts/GoodfonT-NET-XS03.woff2)')
     fontFace.load().then((loadedFont) => {
       document.fonts.add(loadedFont)
       console.log('BackgroundParticles - CSS Font loaded successfully!')
