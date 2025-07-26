@@ -203,53 +203,65 @@ export default function Home() {
           position: 'relative',
           width: '100vw',
           minHeight: '100vh',
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          padding: '60px 40px',
           color: '#374759',
-          zIndex: 2,
-          fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif',
-          padding: '0 40px'
+          zIndex: 2
         }}>
-          {/* Main text - left aligned */}
+          {/* First line - full width left aligned like "相当于" */}
           <div style={{
-            fontSize: 'clamp(36px, 6vw, 72px)',
-            fontWeight: 'normal',
-            lineHeight: 1.3,
-            marginBottom: '20px',
-            textAlign: 'left'
+            width: '100%',
+            paddingLeft: '40px',
+            marginBottom: '20px'
           }}>
-            你花了<span style={{
-              fontFamily: 'GoodfonT-NET-XS03, monospace',
-              fontWeight: 'bold',
-              color: '#F86729',
-              fontSize: '1.2em'
-            }}>{Math.round(displayHours * 60 / 8)}</span>分钟
-          </div>
-          
-          {/* AI discussion text - smaller font */}
-          <div style={{
-            fontSize: 'clamp(24px, 4vw, 48px)',
-            fontWeight: 'normal',
-            lineHeight: 1.3,
-            color: '#374759',
-            marginBottom: '20px',
-            textAlign: 'left'
-          }}>
-            和AI探讨
+            <div style={{
+              fontSize: 'clamp(36px, 5vw, 72px)',
+              fontWeight: 'normal',
+              lineHeight: 1.3,
+              textAlign: 'left'
+            }}>
+              你花了<span style={{
+                fontFamily: 'GoodfonT-NET-XS03, monospace',
+                fontWeight: 'bold',
+                color: '#F86729',
+                fontSize: '1.5em'
+              }}>{Math.round(displayHours * 60 / 8)}</span>分钟
+            </div>
           </div>
 
-          {/* Discussion content - same size as first line */}
+
           <div style={{
-            fontSize: 'clamp(36px, 6vw, 72px)',
-            fontWeight: 'normal',
-            lineHeight: 1.3,
-            color: '#374759',
-            textAlign: 'left'
+            maxWidth: '800px',
+            margin: '0 auto',
+            lineHeight: 1.6
           }}>
-            什么什么什么
+            {/* Statistics list using StatItem components - calculated from displayHours */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              {/* AI discussion text - using StatItem styling */}
+              <div style={{
+                marginBottom: '15px',
+                fontSize: 'clamp(24px, 2.5vw, 48px)',
+                lineHeight: 1,
+                color: '#374759',
+                fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
+              }}>
+                和AI探讨
+              </div>
+
+              {/* Discussion content - using StatItem styling */}
+              <div style={{
+                marginBottom: '15px',
+                fontSize: 'clamp(36px, 6vw, 72px)',
+                lineHeight: 1,
+                color: '#374759',
+                fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
+              }}>
+                什么什么什么
+              </div>
+            </div>
           </div>
         </div>
       </div>
