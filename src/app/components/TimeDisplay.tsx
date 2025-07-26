@@ -84,23 +84,21 @@ class CodeParticle {
     let currentTime = this.p5.millis()
     
     if (!forming || !this.isInShape) {
-      // Background particles: less frequent updates
-      if (frameCount % 3 === 0) { // Update every 3rd frame
-        if (currentTime - this.lastCharChange > (1000 / (this.flickerSpeed * 30))) { // Slower flicker
-          this.char = this.p5.random(this.chars)
-          this.lastCharChange = currentTime
-        }
-        
-        // Pre-calculate sin values
-        let flicker = Math.sin(frameCount * this.flickerSpeed + this.flickerOffset)
-        this.opacity = 0.15 + flicker * 0.05 // Optimized: 0.1-0.2 range
-        
-        let sizeFlicker = Math.sin(frameCount * 0.05 + this.flickerOffset)
-        this.size = this.baseSize + sizeFlicker * 2
-        
-        if (this.colorTransition > 0.05) {
-          this.colorTransition *= 0.95 // Faster decay
-        }
+      // Background particles: normal update frequency for visibility
+      if (currentTime - this.lastCharChange > (1000 / (this.flickerSpeed * 40))) {
+        this.char = this.p5.random(this.chars)
+        this.lastCharChange = currentTime
+      }
+      
+      // Pre-calculate sin values but update every frame
+      let flicker = Math.sin(frameCount * this.flickerSpeed + this.flickerOffset)
+      this.opacity = 0.15 + flicker * 0.05 // Optimized: 0.1-0.2 range
+      
+      let sizeFlicker = Math.sin(frameCount * 0.05 + this.flickerOffset)
+      this.size = this.baseSize + sizeFlicker * 2
+      
+      if (this.colorTransition > 0.05) {
+        this.colorTransition *= 0.95 // Faster decay
       }
     } else {
       // Number particles: normal update rate but optimized
@@ -127,8 +125,8 @@ class CodeParticle {
   }
 
   display() {
-    // Skip very transparent particles to save rendering
-    if (this.opacity < 0.05) return
+    // Skip only extremely transparent particles
+    if (this.opacity < 0.02) return
     
     this.p5.push()
     this.p5.textFont('GoodfonT-NET-XS03, monospace')
@@ -205,9 +203,9 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let rows = Math.ceil(p5.height / spacing)
     let totalParticles = cols * rows
     
-    // Performance-balanced particle limit
-    console.log('screenArea', screenArea, Math.floor(screenArea / 250))
-    let maxParticles = Math.min(1500, Math.max(300, Math.floor(screenArea / 250)))  // Reduced for performance
+    // Balanced particle limit for background coverage
+    console.log('screenArea', screenArea, Math.floor(screenArea / 220))
+    let maxParticles = Math.min(1800, Math.max(350, Math.floor(screenArea / 220)))  // Moderate reduction
     let skipRatio = totalParticles > maxParticles ? Math.ceil(totalParticles / maxParticles) : 1
     
     let count = 0
@@ -447,21 +445,19 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let frameStart = p5.millis()
     p5.background(239, 248, 255)
     
-    // Display vertical lines with reduced frequency
-    if (p5.frameCount % 2 === 0) { // Update every other frame
-      for (let line of verticalLines) {
-        let flicker = Math.sin(p5.frameCount * line.flickerSpeed + line.flickerOffset)
-        let opacity = line.opacity * 0.75 + flicker * line.opacity * 0.25
-        
-        if (opacity > 0.05) { // Skip very transparent ones
-          p5.push()
-          p5.textFont('GoodfonT-NET-XS03, monospace')
-          p5.fill(55, 71, 89, opacity * 255)
-          p5.textAlign(p5.CENTER, p5.CENTER)
-          p5.textSize(line.baseSize)
-          p5.text(line.char, line.x, line.y)
-          p5.pop()
-        }
+    // Display vertical lines every frame for consistent background
+    for (let line of verticalLines) {
+      let flicker = Math.sin(p5.frameCount * line.flickerSpeed + line.flickerOffset)
+      let opacity = line.opacity * 0.75 + flicker * line.opacity * 0.25
+      
+      if (opacity > 0.03) { // Lower threshold
+        p5.push()
+        p5.textFont('GoodfonT-NET-XS03, monospace')
+        p5.fill(55, 71, 89, opacity * 255)
+        p5.textAlign(p5.CENTER, p5.CENTER)
+        p5.textSize(line.baseSize)
+        p5.text(line.char, line.x, line.y)
+        p5.pop()
       }
     }
     
