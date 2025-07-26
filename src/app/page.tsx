@@ -118,7 +118,7 @@ export default function Home() {
                 fontWeight: 'normal',
                 lineHeight: 1.2
               }}>
-                思考处于待机状态
+                大脑处于待机状态
               </div>
             </div>
           </div>
