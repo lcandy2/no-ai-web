@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import BackgroundParticles from './components/BackgroundParticles'
 import NumberDisplay from './components/NumberDisplay'
 import StatItem, { Number } from './components/StatItem'
+import QRCodeReport from './components/QRCodeReport'
 
 function HomeContent() {
   const searchParams = useSearchParams()
@@ -64,6 +65,9 @@ function HomeContent() {
     }}>
       {/* Fixed Background Particles */}
       <BackgroundParticles showDebug={false} />
+      
+      {/* QR Code Report - Desktop Only */}
+      <QRCodeReport />
       
       {/* Scrollable Content */}
       <div style={{

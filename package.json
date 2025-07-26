@@ -11,8 +11,10 @@
   "dependencies": {
     "@p5-wrapper/react": "5.0.0-rc.3",
     "@types/p5": "^1.7.6",
+    "@types/qrcode": "^1.5.5",
     "next": "15.4.4",
     "p5": "^2.0.3",
+    "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
