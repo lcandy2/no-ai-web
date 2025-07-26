@@ -17,9 +17,9 @@ function HomeContent() {
     // Get hours from URL parameter or use default
     const hoursParam = searchParams.get('hours')
     if (hoursParam) {
-      const hours = parseInt(hoursParam, 10)
+      const hours = parseFloat(hoursParam)
       if (!isNaN(hours) && hours >= 0) {
-        setDisplayHours(hours)
+        setDisplayHours(Math.ceil(hours)) // Always round up
       }
     }
 
