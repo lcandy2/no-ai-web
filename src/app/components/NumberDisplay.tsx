@@ -131,7 +131,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
   let particles: CodeParticle[] = []
   let digitPoints: any[] = []
   let forming = false
-  let displayNumber = 49
+  let displayNumber: number // Will be set by props
   let showDebug = false
 
   p5.setup = () => {
@@ -141,8 +141,10 @@ const sketch: Sketch<SketchProps> = (p5) => {
     setTimeout(() => {
       // First create a limited set of particles
       initializeNumberParticles()
-      // Then form the number using existing particles
-      formNumber(displayNumber.toString())
+      // Only form number if displayNumber is set by props
+      if (displayNumber !== undefined) {
+        formNumber(displayNumber.toString())
+      }
     }, 100)
   }
 
@@ -153,10 +155,14 @@ const sketch: Sketch<SketchProps> = (p5) => {
   }
 
   p5.updateWithProps = (props: SketchProps) => {
-    if (props.displayNumber !== undefined && props.displayNumber !== displayNumber) {
+    if (props.displayNumber !== undefined) {
+      let shouldUpdate = displayNumber !== props.displayNumber
       displayNumber = props.displayNumber
-      // Re-form the number using existing particles
-      setTimeout(() => formNumber(displayNumber.toString()), 100)
+      
+      // Form the number if it's new or changed
+      if (shouldUpdate) {
+        setTimeout(() => formNumber(displayNumber.toString()), 100)
+      }
     }
     
     if (props.showDebug !== undefined) {
