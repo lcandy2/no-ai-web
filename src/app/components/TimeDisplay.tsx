@@ -38,7 +38,7 @@ class CodeParticle {
                   'a','b','c','d','e','f','x','y','z','i','j','k']
     this.char = p5Instance.random(this.chars)
     
-    this.baseSize = 20
+    this.baseSize = 30
     this.size = this.baseSize
     this.opacity = p5Instance.random(0.1, 0.3)
     this.isInShape = false
@@ -137,7 +137,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Form the number after a short delay
     setTimeout(() => {
       formNumber(currentHour.toString())
-    }, 500)
+    }, 100)
   }
 
   p5.updateWithProps = (props: SketchProps) => {
@@ -147,101 +147,160 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
   }
 
+  // Initialize particle system (exactly like original)
   function initializeParticles() {
     particles = []
     
-    let spacing = 40
+    // Create denser particle grid to ensure enough particles to fill large numbers (exactly like original)
+    let spacing = 25 // Reduce spacing to increase particle density (exactly like original)
     let cols = Math.ceil(p5.width / spacing)
     let rows = Math.ceil(p5.height / spacing)
     
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        let x = i * spacing + p5.random(-10, 10)
-        let y = j * spacing + p5.random(-10, 10)
+        let x = i * spacing + p5.random(-5, 5)
+        let y = j * spacing + p5.random(-5, 5) + 60
         
-        if (x > 10 && x < p5.width - 10 && y > 50 && y < p5.height - 10) {
-          particles.push(new CodeParticle(x, y, p5))
-        }
+        // Ensure particles are within screen bounds (exactly like original)
+        x = p5.constrain(x, 10, p5.width - 10)
+        y = p5.constrain(y, 70, p5.height - 10)
+        
+        particles.push(new CodeParticle(x, y, p5))
       }
     }
     
     console.log('Created ' + particles.length + ' particles')
   }
 
-  // Generate points for digit shape
-  function generateDigitPoints(val: string) {
+  // Generate solid digit points (exactly like original TimeTest)
+  function generateSolidDigitPoints(val: string) {
     let points: any[] = []
     
-    // Create off-screen graphics to render the number
+    // Adjust font size based on number length (exactly like original)
+    let fontSize = 2400 // Original size
+    if (val.length === 2) {
+      fontSize = 2400 * 0.5
+    } else if (val.length === 3) {
+      fontSize = 2400 * 0.35
+    }
+    
+    // Create off-screen graphics buffer (exactly like original)
     let pg = p5.createGraphics(p5.width, p5.height)
-    pg.background(255)
-    pg.fill(0)
+    pg.background(239, 248, 255) // Same background as original
+    
+    pg.fill(55, 71, 89) // #374759 - same as original
     pg.textAlign(p5.CENTER, p5.CENTER)
-    pg.textSize(400) // Large size for good point detection
+    pg.textSize(fontSize)
     pg.textStyle(p5.BOLD)
+    
+    // Draw number in canvas center (exactly like original)
     pg.text(val, p5.width/2, p5.height/2)
     
-    // Scan pixels to find the number shape
+    // Scan pixels to find black areas (exactly like original algorithm)
     pg.loadPixels()
-    let step = 12 // Skip pixels for performance
+    let d = pg.pixelDensity()
+    let step = 8 // Same sampling step as original
     
     for (let x = 0; x < p5.width; x += step) {
       for (let y = 0; y < p5.height; y += step) {
-        let index = 4 * (y * p5.width + x)
+        // Get pixel color (exactly like original)
+        let index = 4 * (d * y * p5.width * d + d * x)
         let r = pg.pixels[index]
         
-        // If pixel is dark (part of the number)
+        // If pixel is black or near black (number part) - exactly like original
         if (r < 128) {
           points.push({
-            x: x + p5.random(-3, 3),
-            y: y + p5.random(-3, 3)
+            x: x + p5.random(-2, 2),
+            y: y + p5.random(-2, 2)
           })
         }
       }
     }
     
-    pg.remove()
+    pg.remove() // Clean up temporary canvas
     return points
   }
 
-  // Form number shape
+  // Form number shape (exactly like original)
   function formNumber(val: string) {
-    console.log('Forming number:', val)
+    // Validate input (exactly like original)
+    if (!val || val.length === 0 || isNaN(Number(val))) {
+      console.log('Please enter a valid number')
+      return
+    }
     
-    digitPoints = generateDigitPoints(val)
-    console.log('Generated', digitPoints.length, 'points')
+    console.log('Starting to form number: ' + val)
+    
+    // Generate solid number point matrix (exactly like original)
+    digitPoints = generateSolidDigitPoints(val)
+    
+    console.log('Generated ' + digitPoints.length + ' target points')
     
     if (digitPoints.length > 0) {
       forming = true
-      assignParticlesToPoints()
+      assignTargetsEvenly()
     }
   }
 
-  // Assign particles to form the number
-  function assignParticlesToPoints() {
-    // Reset all particles
-    particles.forEach(p => {
-      p.isInShape = false
-      p.hasTarget = false
+  // Evenly distribute particles to target points (exactly like original)
+  function assignTargetsEvenly() {
+    // Ensure enough particles (exactly like original)
+    let neededParticles = Math.max(digitPoints.length, particles.length)
+    
+    // If not enough particles, create more (exactly like original)
+    while (particles.length < neededParticles) {
+      particles.push(new CodeParticle(p5.random(p5.width), p5.random(p5.height), p5))
+    }
+    
+    // Reset all particle states (exactly like original)
+    particles.forEach(particle => {
+      particle.isInShape = false
+      particle.hasTarget = false
     })
     
-    // Assign particles to number shape
-    let assignedCount = Math.min(particles.length, digitPoints.length)
-    
-    for (let i = 0; i < assignedCount; i++) {
-      particles[i].setTargetPoint(
-        digitPoints[i].x,
-        digitPoints[i].y,
-        true
-      )
+    // Method 1: If particle count >= target point count (exactly like original)
+    if (particles.length >= digitPoints.length) {
+      // Shuffle particle array to ensure random assignment (exactly like original)
+      let shuffledParticles = shuffle(particles.slice())
+      
+      // Assign first N particles to number shape (exactly like original)
+      for (let i = 0; i < digitPoints.length; i++) {
+        shuffledParticles[i].setTargetPoint(
+          digitPoints[i].x,
+          digitPoints[i].y,
+          true
+        )
+      }
+      
+      // Remaining particles evenly distributed across screen (exactly like original)
+      let remainingCount = shuffledParticles.length - digitPoints.length
+      let cols = Math.ceil(Math.sqrt(remainingCount))
+      let rows = Math.ceil(remainingCount / cols)
+      let index = digitPoints.length
+      
+      for (let i = 0; i < cols && index < shuffledParticles.length; i++) {
+        for (let j = 0; j < rows && index < shuffledParticles.length; j++) {
+          let x = p5.map(i, 0, cols-1, 50, p5.width-50)
+          let y = p5.map(j, 0, rows-1, 100, p5.height-50)
+          shuffledParticles[index].setTargetPoint(
+            x + p5.random(-20, 20),
+            y + p5.random(-20, 20),
+            false
+          )
+          index++
+        }
+      }
     }
-    
-    // Spread remaining particles around
-    for (let i = assignedCount; i < particles.length; i++) {
-      let x = p5.random(50, p5.width - 50)
-      let y = p5.random(100, p5.height - 50)
-      particles[i].setTargetPoint(x, y, false)
+  }
+
+  // Helper function: shuffle array (exactly like original)
+  function shuffle(array: any[]) {
+    let arr = array.slice()
+    for (let i = arr.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]]
     }
+    return arr
   }
 
   p5.draw = () => {
