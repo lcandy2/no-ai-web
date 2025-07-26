@@ -1,0 +1,92 @@
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 页面主体样式 */
+body {
+    font-family: 'Courier New', monospace;
+    background-color: #EFF8FF; /* 淡蓝色背景 */
+    overflow: hidden; /* 防止滚动条出现 */
+    position: relative;
+}
+
+/* p5.js画布样式 */
+canvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0; /* 确保画布在底层 */
+}
+
+/* p5.js创建的输入控件样式 */
+input[type="text"], input[type="number"] {
+    font-family: 'Courier New', monospace;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid #333;
+    color: #333;
+    z-index: 10; /* 确保控件在画布上方 */
+}
+
+input:focus {
+    outline: none;
+    border-color: #555;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+button {
+    font-family: 'Courier New', monospace;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10; /* 确保按钮在画布上方 */
+}
+
+button:hover {
+    background-color: #555;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    background-color: #222;
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* 字体加载说明 */
+/* 
+如果您有 GoodfonT-NET-XS03 字体文件：
+
+1. 创建一个 fonts 文件夹
+2. 将字体文件放入其中
+3. 添加以下代码：
+
+@font-face {
+    font-family: 'GoodfonT-NET-XS03';
+    src: url('fonts/GoodfonT-NET-XS03.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+然后在 sketch.js 中的 preload() 函数里使用：
+codeFont = loadFont('fonts/GoodfonT-NET-XS03.ttf');
+*/
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    input[type="text"], input[type="number"] {
+        font-size: 14px !important;
+        padding: 4px !important;
+    }
+    
+    button {
+        font-size: 14px !important;
+        padding: 4px 8px !important;
+    }
+}
