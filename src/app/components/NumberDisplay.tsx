@@ -139,16 +139,26 @@ const sketch: Sketch<SketchProps> = (p5) => {
     
     // Use setTimeout to ensure canvas is fully initialized before creating particles
     setTimeout(() => {
-      // Directly form the number - no background particles needed
+      // First create a limited set of particles
+      initializeNumberParticles()
+      // Then form the number using existing particles
       formNumber(displayNumber.toString())
     }, 100)
+  }
+
+  // Initialize with fewer particles - let assignTargetsEvenly handle creation as needed
+  function initializeNumberParticles() {
+    particles = []
+    console.log(`NumberDisplay - Initialized empty particle array - particles will be created as needed`)
   }
 
   p5.updateWithProps = (props: SketchProps) => {
     if (props.displayNumber !== undefined && props.displayNumber !== displayNumber) {
       displayNumber = props.displayNumber
-      // Add delay to ensure P5 is fully initialized
-      setTimeout(() => formNumber(displayNumber.toString()), 100)
+      // Only re-form the number using existing particles, don't create new ones
+      if (particles.length > 0) {
+        setTimeout(() => formNumber(displayNumber.toString()), 100)
+      }
     }
     
     if (props.showDebug !== undefined) {
@@ -264,28 +274,58 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
   }
 
-  // Create particles specifically for number formation (simplified)
+  // Assign particles to target points (exactly like original TimeDisplay)
   function assignTargetsEvenly() {
-    // Clear any existing particles
-    particles = []
+    // Smart particle management: create additional particles if needed, but with limits
+    let targetParticleCount = Math.min(digitPoints.length, 800) // Same limit as original
     
-    // Create exactly the number of particles needed for the digit points
-    // Start them from random positions and set them to converge to digit points
-    for (let i = 0; i < digitPoints.length; i++) {
-      // Start particles from random positions across the screen
-      let startX = p5.random(p5.width)
-      let startY = p5.random(p5.height)
-      
-      let particle = new CodeParticle(startX, startY, p5)
-      particle.setTargetPoint(
-        digitPoints[i].x,
-        digitPoints[i].y,
-        true  // All particles are for number shape
-      )
-      particles.push(particle)
+    // Create additional particles if we don't have enough (exactly like original)
+    while (particles.length < targetParticleCount) {
+      particles.push(new CodeParticle(p5.random(p5.width), p5.random(p5.height), p5))
     }
     
-    console.log(`NumberDisplay - Created ${particles.length} particles to form number from random positions`)
+    console.log(`NumberDisplay - Particles: ${particles.length}, Target points: ${digitPoints.length}`)
+    
+    // Reset all particle states (exactly like original)
+    particles.forEach(particle => {
+      particle.isInShape = false
+      particle.hasTarget = false
+    })
+    
+    // Assign particles to digit points (exactly like original)
+    if (particles.length >= digitPoints.length) {
+      // Shuffle particle array to ensure random assignment
+      let shuffledParticles = shuffle(particles.slice())
+      
+      // Assign particles to number shape
+      for (let i = 0; i < digitPoints.length; i++) {
+        shuffledParticles[i].setTargetPoint(
+          digitPoints[i].x,
+          digitPoints[i].y,
+          true
+        )
+      }
+      
+      // Remaining particles don't need targets for NumberDisplay (no background logic needed)
+    } else {
+      // If we have fewer particles than target points, assign multiple points to some particles
+      let particlesPerPoint = Math.floor(digitPoints.length / particles.length)
+      let extraPoints = digitPoints.length % particles.length
+      let pointIndex = 0
+      
+      for (let i = 0; i < particles.length && pointIndex < digitPoints.length; i++) {
+        // Each particle gets at least one point, some get extra
+        let count = particlesPerPoint + (i < extraPoints ? 1 : 0)
+        if (count > 0 && pointIndex < digitPoints.length) {
+          particles[i].setTargetPoint(
+            digitPoints[pointIndex].x + p5.random(-3, 3),
+            digitPoints[pointIndex].y + p5.random(-3, 3),
+            true
+          )
+          pointIndex += count
+        }
+      }
+    }
   }
 
   // Helper function: shuffle array (exactly like original)
@@ -309,11 +349,15 @@ const sketch: Sketch<SketchProps> = (p5) => {
     p5.textFont('GoodfonT-NET-XS03, monospace')
     p5.textAlign(p5.CENTER, p5.CENTER)
     
-    // Update and display all number particles (no background particles)
+    // Update and display particles (same logic as original but only for number particles)
     for (let i = 0; i < particles.length; i++) {
       let particle = particles[i]
-      particle.update(forming)
-      particle.display()
+      
+      // Only display particles that are part of the number shape
+      if (particle.isInShape) {
+        particle.update(forming)
+        particle.display()
+      }
     }
     
     // Lightweight performance monitoring
@@ -346,6 +390,9 @@ const sketch: Sketch<SketchProps> = (p5) => {
 
   p5.windowResized = () => {
     p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
+    
+    // Reinitialize particles for new screen size
+    initializeNumberParticles()
     
     // Re-form the current number with new responsive sizing
     if (forming) {
