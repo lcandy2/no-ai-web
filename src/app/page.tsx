@@ -57,7 +57,7 @@ export default function Home() {
         {/* Top text - left aligned */}
         <div style={{
           position: 'absolute',
-          top: '15%',
+          top: '8%',
           left: '8%',
           fontSize: 'clamp(36px, 6vw, 72px)',
           fontWeight: 'normal',
@@ -71,7 +71,7 @@ export default function Home() {
         {/* Bottom text - split into two lines with different sizes */}
         <div style={{
           position: 'absolute',
-          bottom: '15%',
+          bottom: '8%',
           right: '8%',
           textAlign: 'right'
         }}>
