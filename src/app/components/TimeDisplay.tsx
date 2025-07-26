@@ -62,12 +62,20 @@ class CodeParticle {
   }
 
   update(forming: boolean) {
-    // Smooth movement to target position
+    // Optimized movement to target position with better speed curve
     if (forming && this.hasTarget) {
       let d = this.p5.dist(this.pos.x, this.pos.y, this.target.x, this.target.y)
-      let speed = this.p5.map(d, 0, 500, 0.02, 0.15)
-      this.pos.x = this.p5.lerp(this.pos.x, this.target.x, speed)
-      this.pos.y = this.p5.lerp(this.pos.y, this.target.y, speed)
+      
+      // If very close, snap directly to target to avoid slow crawl
+      if (d < 3) {
+        this.pos.x = this.target.x
+        this.pos.y = this.target.y
+      } else {
+        // Improved speed mapping: higher minimum speed, tighter distance range
+        let speed = this.p5.map(d, 0, 300, 0.06, 0.2)
+        this.pos.x = this.p5.lerp(this.pos.x, this.target.x, speed)
+        this.pos.y = this.p5.lerp(this.pos.y, this.target.y, speed)
+      }
     }
 
     // Advanced character flicker with timing
