@@ -131,10 +131,10 @@ export default function Home() {
           }}>
             {/* Main comparison section */}
             <div style={{
-              fontSize: 'clamp(32px, 5vw, 64px)',
+              fontSize: 'clamp(48px, 8vw, 96px)',
               fontWeight: 'normal',
               marginBottom: '60px',
-              textAlign: 'center'
+              textAlign: 'start'
             }}>
               相当于
             </div>
