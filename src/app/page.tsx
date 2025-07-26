@@ -136,8 +136,9 @@ export default function Home() {
             <div style={{
               fontSize: 'clamp(48px, 8vw, 96px)',
               fontWeight: 'normal',
-              marginBottom: '60px',
-              textAlign: 'start',
+              marginBottom: '20px',
+              textAlign: 'left',
+              marginLeft: '0',
               fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
             }}>
               相当于

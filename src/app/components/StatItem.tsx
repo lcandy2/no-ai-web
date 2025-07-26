@@ -20,9 +20,9 @@ export default function StatItem({ children, highlight = false }: StatItemProps)
 
   return (
     <div style={{
-      marginBottom: highlight ? '40px' : '30px',
-      fontSize: highlight ? 'clamp(28px, 5vw, 52px)' : 'clamp(22px, 4vw, 40px)',
-      lineHeight: 1.5,
+      marginBottom: highlight ? '20px' : '15px',
+      fontSize: highlight ? 'clamp(28px, 5vw, 52px)' : 'clamp(20px, 2.5vw, 32px)',
+      lineHeight: 1,
       color: '#374759',
       fontFamily: 'FZShuSong, PingFang SC, Microsoft YaHei, sans-serif'
     }}>
@@ -43,7 +43,7 @@ export function Number({ children, highlight = false }: NumberProps) {
       fontFamily: 'GoodfonT-NET-XS03, monospace',
       fontWeight: 'bold',
       color: '#F86729',
-      fontSize: highlight ? '1.3em' : '1.2em',
+      fontSize: highlight ? '1.3em' : '1.5em',
       margin: '0 4px'
     }}>
       {children}
