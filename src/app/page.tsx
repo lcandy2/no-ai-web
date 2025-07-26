@@ -1,23 +1,25 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import BackgroundParticles from './components/BackgroundParticles'
 import NumberDisplay from './components/NumberDisplay'
 import StatItem, { Number } from './components/StatItem'
 
 export default function Home() {
-  const [currentHour, setCurrentHour] = useState(new Date().getHours())
+  const searchParams = useSearchParams()
+  const [displayHours, setDisplayHours] = useState(23)
 
   useEffect(() => {
-    const updateHour = () => {
-      setCurrentHour(new Date().getHours())
+    // Get hours from URL parameter or use default
+    const hoursParam = searchParams.get('hours')
+    if (hoursParam) {
+      const hours = parseInt(hoursParam, 10)
+      if (!isNaN(hours) && hours >= 0) {
+        setDisplayHours(hours)
+      }
     }
-
-    updateHour()
-    const interval = setInterval(updateHour, 60000)
-
-    return () => clearInterval(interval)
-  }, [])
+  }, [searchParams])
 
   useEffect(() => {
     // Load FZShuSong font via CSS
@@ -56,8 +58,8 @@ export default function Home() {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-          {/* Number Display for 49 - should scroll with content */}
-          <NumberDisplay displayNumber={23} showDebug={false} />
+          {/* Number Display - hours from URL parameter */}
+          <NumberDisplay displayNumber={displayHours} showDebug={false} />
           
           {/* Floating text overlay */}
           <div style={{
@@ -141,33 +143,33 @@ export default function Home() {
               相当于
             </div>
 
-            {/* Statistics list using StatItem components */}
+            {/* Statistics list using StatItem components - calculated from displayHours */}
             <div style={{
               display: 'flex',
               flexDirection: 'column'
             }}>
               <StatItem highlight={true}>
-                整整<Number highlight={true}>10</Number>个标准工作日
+                整整<Number highlight={true}>{Math.round(displayHours / 8)}</Number>个标准工作日
               </StatItem>
 
               <StatItem>
-                睡眠时间相当于一个人正常睡眠<Number>11</Number>晚
+                睡眠时间相当于一个人正常睡眠<Number>{Math.round(displayHours / 8 * 3)}</Number>晚
               </StatItem>
 
               <StatItem>
-                电影时长可以看完<Number>41</Number>部<Number>2</Number>小时电影
+                电影时长可以看完<Number>{Math.round(displayHours / 2)}</Number>部<Number>2</Number>小时电影
               </StatItem>
 
               <StatItem>
-                播客时长足够听完<Number>165</Number>集<Number>30</Number>分钟播客
+                播客时长足够听完<Number>{Math.round(displayHours * 2)}</Number>集<Number>30</Number>分钟播客
               </StatItem>
 
               <StatItem>
-                飞行时间可以从伦敦飞北京来回<Number>4</Number>次
+                飞行时间可以从伦敦飞北京来回<Number>{Math.round(displayHours / 24)}</Number>次
               </StatItem>
 
               <StatItem>
-                阅读时间足够读完<Number>6</Number>本小说
+                阅读时间足够读完<Number>{Math.round(displayHours / 12)}</Number>本小说
               </StatItem>
             </div>
 
@@ -179,7 +181,7 @@ export default function Home() {
               color: '#F86729',
               fontStyle: 'italic'
             }}>
-              相当于: 整整10个工作日……↓
+              相当于: 整整{Math.round(displayHours / 8)}个工作日……↓
             </div>
           </div>
         </div>
