@@ -9,6 +9,7 @@ import StatItem, { Number } from './components/StatItem'
 export default function Home() {
   const searchParams = useSearchParams()
   const [displayHours, setDisplayHours] = useState(23)
+  const [displayName, setDisplayName] = useState('')
 
   useEffect(() => {
     // Get hours from URL parameter or use default
@@ -18,6 +19,12 @@ export default function Home() {
       if (!isNaN(hours) && hours >= 0) {
         setDisplayHours(hours)
       }
+    }
+
+    // Get name from URL parameter
+    const nameParam = searchParams.get('name')
+    if (nameParam) {
+      setDisplayName(nameParam)
     }
   }, [searchParams])
 
@@ -88,7 +95,7 @@ export default function Home() {
               writingMode: 'horizontal-tb',
               textAlign: 'left'
             }}>
-              在过去7天<br />你有
+              {displayName && `${displayName}，`}在过去7天<br />你有
             </div>
             
             {/* Bottom text - split into two lines with different sizes */}
@@ -179,7 +186,7 @@ export default function Home() {
             </div>
 
             {/* Bottom note */}
-            <div style={{
+            {/* <div style={{
               marginTop: '80px',
               textAlign: 'center',
               fontSize: 'clamp(14px, 2vw, 20px)',
@@ -187,7 +194,7 @@ export default function Home() {
               fontStyle: 'italic'
             }}>
               相当于: 整整{Math.round(displayHours / 8)}个工作日……↓
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
