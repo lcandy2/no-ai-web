@@ -59,7 +59,7 @@ export default function Home() {
           position: 'absolute',
           top: '8%',
           left: '8%',
-          fontSize: 'clamp(36px, 6vw, 72px)',
+          fontSize: 'clamp(42px, 7vw, 84px)',
           fontWeight: 'normal',
           lineHeight: 1.2,
           writingMode: 'horizontal-tb',
@@ -76,7 +76,7 @@ export default function Home() {
           textAlign: 'right'
         }}>
           <div style={{
-            fontSize: 'clamp(36px, 6vw, 72px)',
+            fontSize: 'clamp(42px, 7vw, 84px)',
             fontWeight: 'normal',
             lineHeight: 1.2,
             marginBottom: '8px'
