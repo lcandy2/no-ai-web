@@ -34,8 +34,8 @@ export default function Home() {
       width: '100vw',
       height: '100vh'
     }}>
-      {/* Background TimeDisplay */}
-      <TimeDisplay showDebug={false} />
+      {/* Background TimeDisplay with custom number */}
+      <TimeDisplay displayNumber={49} showDebug={false} />
       
       {/* Floating text overlay */}
       <div style={{

@@ -5,7 +5,7 @@ import { NextReactP5Wrapper } from './NextReactP5Wrapper'
 import type { Sketch } from "@p5-wrapper/react"
 
 interface SketchProps {
-  currentHour: number
+  displayNumber?: number
   showDebug?: boolean
 }
 
@@ -135,8 +135,9 @@ const sketch: Sketch<SketchProps> = (p5) => {
   let particles: CodeParticle[] = []
   let digitPoints: any[] = []
   let forming = false
-  let currentHour = new Date().getHours()
+  let displayNumber = new Date().getHours()
   let showDebug = false
+  let verticalLines: any[] = []
 
   p5.setup = () => {
     p5.createCanvas(p5.windowWidth, p5.windowHeight)
@@ -145,16 +146,19 @@ const sketch: Sketch<SketchProps> = (p5) => {
     // Create optimized particle grid
     initializeParticles()
     
+    // Add vertical line particles for background effect
+    addVerticalLines()
+    
     // Form the number immediately for better user experience
     setTimeout(() => {
-      formNumber(currentHour.toString())
+      formNumber(displayNumber.toString())
     }, 50)
   }
 
   p5.updateWithProps = (props: SketchProps) => {
-    if (props.currentHour !== currentHour) {
-      currentHour = props.currentHour
-      formNumber(currentHour.toString())
+    if (props.displayNumber !== undefined && props.displayNumber !== displayNumber) {
+      displayNumber = props.displayNumber
+      formNumber(displayNumber.toString())
     }
     
     if (props.showDebug !== undefined) {
@@ -209,6 +213,33 @@ const sketch: Sketch<SketchProps> = (p5) => {
     }
     
     console.log(`Created ${particles.length} particles (${Math.round(spacing)}px spacing, ${p5.width}x${p5.height})`)
+  }
+
+  // Add vertical line character particles like in original TimeTest
+  function addVerticalLines() {
+    verticalLines = []
+    
+    // Create sparse vertical line characters distributed across screen
+    let lineChars = ['|', '│', '┃', '丨', '︱', '︳']
+    let numLines = Math.floor((p5.width * p5.height) / 50000) // Density based on screen size
+    numLines = Math.max(5, Math.min(20, numLines)) // Between 5-20 lines
+    
+    for (let i = 0; i < numLines; i++) {
+      let x = p5.random(p5.width * 0.1, p5.width * 0.9)
+      let y = p5.random(p5.height * 0.1, p5.height * 0.9)
+      
+      verticalLines.push({
+        x: x,
+        y: y,
+        char: p5.random(lineChars),
+        opacity: p5.random(0.05, 0.15),
+        flickerSpeed: p5.random(0.01, 0.03),
+        flickerOffset: p5.random(p5.TWO_PI),
+        baseSize: p5.random(25, 40)
+      })
+    }
+    
+    console.log(`Created ${verticalLines.length} vertical line particles`)
   }
 
   // Generate solid digit points with responsive font sizing
@@ -388,7 +419,21 @@ const sketch: Sketch<SketchProps> = (p5) => {
     let frameStart = p5.millis()
     p5.background(239, 248, 255)
     
-    // Display particles with performance optimization
+    // Display vertical line background particles first
+    for (let line of verticalLines) {
+      p5.push()
+      let flicker = p5.sin(p5.frameCount * line.flickerSpeed + line.flickerOffset)
+      let opacity = p5.map(flicker, -1, 1, line.opacity * 0.5, line.opacity)
+      
+      p5.textFont('GoodfonT-NET-XS03, monospace')
+      p5.fill(55, 71, 89, opacity * 255)
+      p5.textAlign(p5.CENTER, p5.CENTER)
+      p5.textSize(line.baseSize)
+      p5.text(line.char, line.x, line.y)
+      p5.pop()
+    }
+    
+    // Display main particles with performance optimization
     for (let particle of particles) {
       particle.update(forming)
       particle.display()
@@ -410,7 +455,7 @@ const sketch: Sketch<SketchProps> = (p5) => {
       let lineHeight = p5.textSize() * 1.2
       let y = 20
       
-      p5.text('Hour: ' + currentHour, 20, y); y += lineHeight
+      p5.text('Number: ' + displayNumber, 20, y); y += lineHeight
       p5.text('Particles: ' + particles.length, 20, y); y += lineHeight
       p5.text('FPS: ' + Math.round(p5.frameRate()), 20, y); y += lineHeight
       p5.text('Frame: ' + Math.round(avgFrameTime) + 'ms', 20, y); y += lineHeight
@@ -426,32 +471,38 @@ const sketch: Sketch<SketchProps> = (p5) => {
     p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
     initializeParticles()
     
-    // Re-form the current number with new responsive sizing
+    // Re-add vertical lines and re-form the current number with new responsive sizing
+    addVerticalLines()
     if (forming) {
       setTimeout(() => {
-        formNumber(currentHour.toString())
+        formNumber(displayNumber.toString())
       }, 100)
     }
   }
 }
 
 interface TimeDisplayProps {
+  displayNumber?: number
   showDebug?: boolean
 }
 
-export default function TimeDisplay({ showDebug = false }: TimeDisplayProps) {
+export default function TimeDisplay({ displayNumber, showDebug = false }: TimeDisplayProps) {
+  // Use displayNumber prop if provided, otherwise default to current hour
   const [currentHour, setCurrentHour] = useState(new Date().getHours())
+  const numberToDisplay = displayNumber !== undefined ? displayNumber : currentHour
 
   useEffect(() => {
-    const updateHour = () => {
-      setCurrentHour(new Date().getHours())
+    if (displayNumber === undefined) {
+      const updateHour = () => {
+        setCurrentHour(new Date().getHours())
+      }
+
+      updateHour()
+      const interval = setInterval(updateHour, 60000)
+
+      return () => clearInterval(interval)
     }
-
-    updateHour()
-    const interval = setInterval(updateHour, 60000)
-
-    return () => clearInterval(interval)
-  }, [])
+  }, [displayNumber])
 
   useEffect(() => {
     // Load custom font via CSS
@@ -475,7 +526,7 @@ export default function TimeDisplay({ showDebug = false }: TimeDisplayProps) {
       zIndex: 0,
       fontFamily: 'GoodfonT-NET-XS03, monospace' // Apply custom font
     }}>
-      <NextReactP5Wrapper sketch={sketch} currentHour={currentHour} showDebug={showDebug} />
+      <NextReactP5Wrapper sketch={sketch} displayNumber={numberToDisplay} showDebug={showDebug} />
     </div>
   )
 }
