@@ -56,28 +56,31 @@ const sketch: Sketch<SketchProps> = (p5) => {
   let currentHour = new Date().getHours()
   let codeFont: any = null
   let fontLoaded = false
-
-  p5.preload = () => {
-    try {
-      codeFont = p5.loadFont('/fonts/GoodfonT-NET-XS03.ttf', 
-        () => {
-          console.log('Font loaded successfully!')
-          fontLoaded = true
-        },
-        () => {
-          console.log('Font loading failed, using fallback')
-          fontLoaded = false
-        }
-      )
-    } catch (e) {
-      console.log('Error loading font:', e)
-      fontLoaded = false
-    }
-  }
+  let fontLoadAttempted = false
 
   p5.setup = () => {
     p5.createCanvas(p5.windowWidth, p5.windowHeight)
     p5.background(239, 248, 255)
+    
+    // Try to load font in setup (safer than preload)
+    if (!fontLoadAttempted) {
+      fontLoadAttempted = true
+      try {
+        codeFont = p5.loadFont('/fonts/GoodfonT-NET-XS03.ttf', 
+          () => {
+            console.log('Font loaded successfully!')
+            fontLoaded = true
+          },
+          () => {
+            console.log('Font loading failed, using fallback')
+            fontLoaded = false
+          }
+        )
+      } catch (e) {
+        console.log('Error loading font:', e)
+        fontLoaded = false
+      }
+    }
     
     // Create simple particle grid
     initializeParticles()
